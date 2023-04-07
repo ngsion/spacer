@@ -23,6 +23,7 @@ public:
 public:
     Screen();
     void SetPixel(int x, int y, Pixel *pixel);
+    void SetPixelValue(int x, int y, int value);
     bool TrySetOnePixel(int xpos, int ypos, Pixel *pixel);
     void PrintOut(int flag,int flag2);
     float GetPoleRatio();
@@ -78,10 +79,10 @@ void Screen::PrintOut(int flag,int flag2 = -1)
     char filename[64] = {0};
     if ( flag2 == -1 )
     {
-        sprintf(filename, "new22/result_%dX%d_start_%d.txt", PW, PH, flag);
+        sprintf(filename, "dfs/result_%dX%d_start_%d.txt", PW, PH, flag);
     }else
     {
-         sprintf(filename, "new22/result_%dX%d_start_%d_%d.txt", PW, PH, flag,flag2);
+         sprintf(filename, "dfs/result_%dX%d_start_%d_%d.txt", PW, PH, flag,flag2);
     }
     outFile.open(filename); 
     for (int y = SH - 1; y >= 0; y--)
@@ -115,6 +116,11 @@ void Screen::SetPixel(int x, int y, Pixel *pixel)
     A[up.x][up.y] = pixel->up;
     A[upright.x][upright.y] = pixel->upright;
     A[right.x][right.y] = pixel->right;
+}
+
+void Screen::SetPixelValue(int x, int y, int value)
+{
+    A[x][y] = value;
 }
 
 bool Screen::LoadMatrixFileToA(const char * fileName, int row, int column)
