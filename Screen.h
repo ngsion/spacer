@@ -24,14 +24,15 @@ public:
     Screen();
     void SetPixel(int x, int y, Pixel *pixel);
     void SetPixelValue(int x, int y, int value);
+    int GetPixelValue(int x, int y);
     bool TrySetOnePixel(int xpos, int ypos, Pixel *pixel);
     void PrintOut(int flag,int flag2);
     float GetPoleRatio();
     Pixel GetPixelFromA(int x,int y);
     bool LoadMatrixFileToA(const char * fileName, int row, int column);
     
-    bool SameColumns(); ///×ó±ßºÍÓÒ±ßÊÇ·ñÒ»Ñù
-    bool SameRows(); ///¶¥²¿ºÍµ×²¿ÊÇ·ñÒ»Ñù
+    bool SameColumns(); ///ï¿½ï¿½ßºï¿½ï¿½Ò±ï¿½ï¿½Ç·ï¿½Ò»ï¿½ï¿½
+    bool SameRows(); ///ï¿½ï¿½ï¿½ï¿½ï¿½Íµ×²ï¿½ï¿½Ç·ï¿½Ò»ï¿½ï¿½
 };
 
 Screen::Screen()
@@ -46,7 +47,7 @@ Screen::Screen()
 }
 
 
- bool Screen::SameColumns() ///×ó±ßºÍÓÒ±ßÊÇ·ñÒ»Ñù
+ bool Screen::SameColumns() ///ï¿½ï¿½ßºï¿½ï¿½Ò±ï¿½ï¿½Ç·ï¿½Ò»ï¿½ï¿½
  {
         vector<int> colLeft;
         vector<int> colRight;
@@ -58,7 +59,7 @@ Screen::Screen()
 
         return colLeft == colRight;
 }
-    bool Screen::SameRows() ///¶¥²¿ºÍµ×²¿ÊÇ·ñÒ»Ñù
+    bool Screen::SameRows() ///ï¿½ï¿½ï¿½ï¿½ï¿½Íµ×²ï¿½ï¿½Ç·ï¿½Ò»ï¿½ï¿½
     {
          vector<int> rowTop;
         vector<int> rowBottom;
@@ -90,7 +91,7 @@ void Screen::PrintOut(int flag,int flag2 = -1)
         for (int x = 0; x < SW; x++)
         {
             // cout << A[x][y] << "   ";
-            outFile << A[x][y] << "   ";
+            outFile << A[x][y] << " ";
         }
        // cout << endl;
         outFile << endl;
@@ -123,6 +124,10 @@ void Screen::SetPixelValue(int x, int y, int value)
     A[x][y] = value;
 }
 
+int Screen::GetPixelValue(int x, int y)
+{
+   return A[x][y];
+}
 bool Screen::LoadMatrixFileToA(const char * fileName, int row, int column)
 {
 
