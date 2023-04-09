@@ -10,58 +10,64 @@
 #include "Utility.h"
 #include <time.h>
 
-#define nVlaue (SW * SH - PW * PH)
+#define nValue (SW * SH - PW * PH)
 
-bool shu[nVlaue];
-bool pie[nVlaue + nVlaue - 1];
-bool na[nVlaue + nVlaue - 1];
+bool shu[nValue];
+bool pie[nValue + nValue - 1];
+bool na[nValue + nValue - 1];
 Screen screen = Screen();
 
 static int results = 0;
 
-
 void dfs(int row)
 {
 
-  for (int col = 0; col < nVlaue; col++)
+  for (int col = 0; col < nValue; col++)
   {
     int pieIndex = row + col;
-    int naIndex = nVlaue - 1 - row + col;
+    int naIndex = nValue - 1 - row + col;
 
-    
-
-    /// x,y为screen中坐标
-    if ((row + col + 1 - SH) % 2 != 0 || (row - col - 1 + SH) % 2 != 0)
-    {
-      // printf("something is wrong pls check %d , %d\n",(row+col+1-SH),(row-col-1+SH));
-      continue;
-    }
     int x = (row + col + 1 - SH) / 2;
     int y = (row - col - 1 + SH) / 2;
-    if (x < 0 || x >= SW || y < 0 || y >= SH)
+
+    /// x,y为screen中坐标
+    /* if ((row + col + 1 - SH) % 2 != 0 || (row - col - 1 + SH) % 2 != 0)
+     {
+       // printf("something is wrong pls check %d , %d\n",(row+col+1-SH),(row-col-1+SH));
+       continue;
+     }
+     int x = (row + col + 1 - SH) / 2;
+     int y = (row - col - 1 + SH) / 2;
+     if (x < 0 || x >= SW || y < 0 || y >= SH)
+     {
+       continue;
+     }
+
+     if (x < 2 || x > nValue - 3 || y < 2 || y > nValue -3)
+     {
+       if(x == 0 && y == 0) continue;
+       if(x == SW-1 && y == SH-1) continue;
+       if (shu[col])
+       {
+         continue;
+       }
+     }
+     else*/
+    if (shu[col] || pie[pieIndex] || na[naIndex])
     {
       continue;
     }
-   
-    if (x < 2 || x > nVlaue - 3 || y < 2 || y > nVlaue -3)
+
+    if (nValue - 1 == row)
     {
-      if(x == 0 && y == 0) continue;
-      if(x == SW-1 && y == SH-1) continue;
-      if (shu[col])
+
+      if ((row + col + 1 - SH) % 2 == 0 && (row - col - 1 + SH) % 2 == 0)
       {
-        continue;
+        if (x > 0 && x <= SW && y > 0 && y <= SH)
+        {
+          screen.SetPixelValue(x, SH - 1 - y, 1);
+        }
       }
-    }
-    else if (shu[col] || pie[pieIndex] || na[naIndex])
-    {
-      continue;
-    }
-
-
-    if (nVlaue - 1 == row)
-    {
-
-       screen.SetPixelValue(x, SH-1-y, 1);
 
       /* for (int xpos = 0; xpos < cols; xpos++)
        {
@@ -72,24 +78,38 @@ void dfs(int row)
        }*/
 
       screen.PrintOut(results);
-      printf("get one result \n");
+      printf("get one result %d\n", results);
       ++results;
 
-       screen.SetPixelValue(x, SH-1-y, 2);
+      if ((row + col + 1 - SH) % 2 == 0 && (row - col - 1 + SH) % 2 == 0)
+      {
+        if (x > 0 && x <= SW && y > 0 && y <= SH)
+        {
+          screen.SetPixelValue(x, SH - 1 - y, 2);
+        }
+      }
     }
     else
     {
-         if (x < 2 || x > nVlaue - 3 || y < 2 || y > nVlaue -3)
-         {
-             shu[col] = true;
-         }
-         else
-         {
-             shu[col] = pie[pieIndex] = na[naIndex] = true;
-         }
+      /*if (x < 2 || x > nValue - 3 || y < 2 || y > nValue -3)
+      {
+          shu[col] = true;
+      }
+      else*/
+      {
+        shu[col] = pie[pieIndex] = na[naIndex] = true;
+      }
 
-        screen.SetPixelValue(x, SH-1-y, 1);
-           printf("set  one result %d, %d\n",x,y);
+      if ((row + col + 1 - SH) % 2 == 0 && (row - col - 1 + SH) % 2 == 0)
+      {
+        if (x > 0 && x <= SW && y > 0 && y <= SH)
+        {
+          screen.SetPixelValue(x, SH - 1 - y, 1);
+        }
+      }
+
+      // screen.SetPixelValue(x, SH-1-y, 1);
+      //    printf("set  one result %d, %d\n",x,y);
       /*  int xpos = col;
         int ypos = row;
         while(ypos > 0 && xpos < cols)
@@ -100,7 +120,15 @@ void dfs(int row)
         }*/
 
       dfs(row + 1);
-       screen.SetPixelValue(x, SH-1-y, 2);
+      // screen.SetPixelValue(x, SH-1-y, 2);
+
+      if ((row + col + 1 - SH) % 2 == 0 && (row - col - 1 + SH) % 2 == 0)
+      {
+        if (x > 0 && x <= SW && y > 0 && y <= SH)
+        {
+          screen.SetPixelValue(x, SH - 1 - y, 2);
+        }
+      }
 
       shu[col] = pie[pieIndex] = na[naIndex] = false;
     }
@@ -117,17 +145,18 @@ void main()
     }
   }
 
-  for (int index = 0; index < nVlaue; index++)
+  for (int index = 0; index < nValue; index++)
   {
     shu[index] = false;
   }
 
-  for (int index = 0; index < nVlaue + nVlaue - 1; index++)
+  for (int index = 0; index < nValue + nValue - 1; index++)
   {
     pie[index] = false;
     na[index] = false;
   }
 
+  printf("nvalue is %d \n", nValue);
   time_t timer0;
   timer0 = time(NULL);
   char *pctime = ctime(&timer0);
@@ -137,5 +166,5 @@ void main()
 
   timer0 = time(NULL);
   pctime = ctime(&timer0);
-  printf("\nends with %d results , at \n%s\n", results, pctime);
+  printf("\nends with %d results , at %s\n", results, pctime);
 }
