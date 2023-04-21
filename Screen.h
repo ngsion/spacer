@@ -28,6 +28,7 @@ public:
     bool TrySetOnePixel(int xpos, int ypos, Pixel *pixel);
     void PrintOut(int flag,int flag2);
     float GetPoleRatio();
+    int GetPoleCount();
     Pixel GetPixelFromA(int x,int y);
     bool LoadMatrixFileToA(const char * fileName, int row, int column);
     
@@ -185,6 +186,22 @@ float Screen::GetPoleRatio()
         }
     }
     return count / (SW * SH * 1.0);
+}
+
+int Screen::GetPoleCount()
+{
+    int count = 0;
+    for (int x = 0; x < SW; x++)
+    {
+        for (int y = 0; y < SH; y++)
+        {
+            if (1 == this->A[x][y])
+            {
+                ++count;
+            }
+        }
+    }
+    return count;
 }
 
 bool Screen::TrySetOnePixel(int xpos, int ypos, Pixel *pixel)

@@ -13,9 +13,14 @@
 static bool flag = false;
 
 #define nValue (SW * SH - PW * PH)
-#define Rectw 6
-#define RectH 6
-#define MaxCount 36 ///在 rectW x rectH 区域内，最多MaxCount个空点
+
+////算法1： 在某条对角线上，在大于 MinRectWidth 的边长，取最大的那个点放置柱子
+#define MinRectLength 6
+
+
+#define Rectw 50
+#define RectH 50
+#define MaxCount 2500 /// 在 rectW x rectH 区域内，最多MaxCount个空点
 
 int colValues[nValue]; /// 每行的colvalues值
 
@@ -27,9 +32,10 @@ static int results = 0;
 void dfs(int row)
 {
 
+
   if (nValue - 1 == row)
   {
-    /// 得到一个结果了
+    /// 得到一个结果了, 打印出来
     for (int xpos = 0; xpos < SW; xpos++)
     {
       for (int ypos = 0; ypos < SH; ypos++)
@@ -44,7 +50,7 @@ void dfs(int row)
       }
     }
     screen.PrintOut(results);
-    printf("get one result %d\n", results);
+    printf("get one result %d , pole count %d\n", results, screen.GetPoleCount());
     ++results;
 
     for (int xpos = 0; xpos < SW; xpos++)
@@ -62,77 +68,154 @@ void dfs(int row)
     }
     return;
   }
-  flag = !flag;
+
   bool found = false;
-  int tagetValue = flag ? nValue - 1 : 1;
-  int col =   flag ? 1 : nValue - 1;
-  while ( col != tagetValue)
+
+  /// 前面几行需要特殊处理
+  if (row < 0)
   {
-     flag ? ++col : --col;
-     
+    int minRectWidth = 0;
+    int targetCol = 0;
 
-    int x = (row + col + 1 - SH) / 2;
-    int y = (row - col - 1 + SH) / 2;
-
-    /// x,y为screen中坐标
-    if ((row + col + 1 - SH) % 2 != 0 || (row - col - 1 + SH) % 2 != 0)
+    for (int col = 0; col < nValue; col++)
     {
-      ////这里有接近1/2的点不见了
-      // printf("something is wrong pls check %d , %d\n",(row+col+1-SH),(row-col-1+SH));
-      continue;
-    }
-
-    if (x < 0 || x >= SW || y < 0 || y >= SH)
-    {
-      continue;
-    }
-
-    ////将要放柱子的列
-    int shouldAddColumn = -1;
-
-    /// 超过一定距离就不放
-    int xStart = floor(x - Rectw/2.0 > 0) ? floor(x - Rectw/2.0) : 0;
-    int xStop = ceil(x + Rectw/2.0) > SW -1 ? SW -1 : ceil(x + Rectw/2.0);
-    int yStart = floor(y - Rectw/2.0) > 0 ? floor(y - Rectw/2.0) : 0; 
-    int yStop = ceil(y + Rectw/2.0) > SH -1 ? SH -1 : ceil(y + Rectw/2.0);
-  //  printf("col is %d, x is %d, xStart is %d  , xStop is %d, y is %d, yStart is %d, yStop is %d \n",col,x, xStart,xStop,y,yStart,yStop);
-    int count = 0;
-    for (int index = xStart; index < xStop; index++)
-    {
-      for (int idx = yStart; idx < yStop; idx++)
+      /// x,y为screen中坐标
+      if ((row + col + 1 - SH) % 2 != 0 || (row - col - 1 + SH) % 2 != 0)
       {
-        if ( 1 != screen.A[index][SH - 1 - idx] ) 
+        ////这里有接近1/2的点不见了
+        // printf("something is wrong pls check %d , %d\n",(row+col+1-SH),(row-col-1+SH));
+        continue;
+      }
+
+      int x = (row + col + 1 - SH) / 2;
+      int y = (row - col - 1 + SH) / 2;
+
+      if (x < 0 || x >= SW || y < 0 || y >= SH)
+      {
+        continue;
+      }
+
+      ////将要放柱子的列
+      int shouldAddColumn = -1;
+
+      /////找出该行中可以画出最大的正方形，没有柱子坐落在正方形内
+      for (int index = 0; index < row; index++)
+      {
+        if (colValues[index] != -1)
         {
-          ++count;  
-        } 
+          int yDiff = row - index;
+          int xDiff = abs(col - colValues[index]);
+          int width = max(xDiff, yDiff);
+          if (0 == minRectWidth && width > MinRectLength)
+          {
+            minRectWidth = width;
+            targetCol = col;
+          }
+          else
+          {
+            if (width > MinRectLength && width < minRectWidth && y < SW - MinRectLength)
+            {
+              minRectWidth = width;
+              targetCol = col;
+            }
+          }
+        }
+      }
+
+      if (minRectWidth > MinRectLength)
+      {
+        shouldAddColumn = targetCol;
+      }
+
+      if (-1 != shouldAddColumn)
+      {
+        // printf("add one is %d \n", shouldAddColumn);
+        colValues[row] = shouldAddColumn;
+
+        screen.SetPixelValue(x, SH - 1 - y, 1);
+
+        found = true;
+        dfs(row + 1);
+
+        screen.SetPixelValue(x, SH - 1 - y, 2);
+
+        colValues[row] = -1;
       }
     }
-
-    if ( count >= MaxCount)
-    {
-      shouldAddColumn = col;
-    }
-
-    if (-1 != shouldAddColumn)
-    {
-     // printf("add one is %d \n", shouldAddColumn);
-      colValues[row] = shouldAddColumn;
-
-      screen.SetPixelValue(x, SH - 1 - y, 1);
-
-      found = true;
-      dfs(row + 1);
-
-      screen.SetPixelValue(x, SH - 1 - y, 2);
-
-      colValues[row] = -1;
-    }
-   
   }
-   if (!found)
+  else
+  {
+
+    flag = !flag;
+
+    int tagetValue = flag ? nValue - 1 : 1;
+    int col = flag ? 1 : nValue - 1;
+    while (col != tagetValue)
     {
-      dfs(row + 1);
+      flag ? ++col : --col;
+      /// x,y为screen中坐标
+      if ((row + col + 1 - SH) % 2 != 0 || (row - col - 1 + SH) % 2 != 0)
+      {
+        ////这里有接近1/2的点不见了
+        // printf("something is wrong pls check %d , %d\n",(row+col+1-SH),(row-col-1+SH));
+        continue;
+      }
+
+      int x = (row + col + 1 - SH) / 2;
+      int y = (row - col - 1 + SH) / 2;
+
+      if (x < 0 || x >= SW || y < 0 || y >= SH)
+      {
+        continue;
+      }
+
+      ////将要放柱子的列
+      int shouldAddColumn = -1;
+
+      /// 超过一定距离就不放
+      int xStart = floor(x - Rectw / 2.0 > 0) ? floor(x - Rectw / 2.0) : 0;
+      int xStop = ceil(x + Rectw / 2.0) > SW - 1 ? SW - 1 : ceil(x + Rectw / 2.0);
+      int yStart = floor(y - Rectw / 2.0) > 0 ? floor(y - Rectw / 2.0) : 0;
+      int yStop = ceil(y + Rectw / 2.0) > SH - 1 ? SH - 1 : ceil(y + Rectw / 2.0);
+      //  printf("col is %d, x is %d, xStart is %d  , xStop is %d, y is %d, yStart is %d, yStop is %d \n",col,x, xStart,xStop,y,yStart,yStop);
+      int count = 0;
+      for (int index = xStart; index < xStop; index++)
+      {
+        for (int idx = yStart; idx < yStop; idx++)
+        {
+          if (1 != screen.A[index][SH - 1 - idx])
+          {
+            ++count;
+          }
+        }
+      }
+
+      if (count >= MaxCount)
+      {
+        shouldAddColumn = col;
+      }
+
+      if (-1 != shouldAddColumn)
+      {
+        // printf("add one is %d \n", shouldAddColumn);
+        colValues[row] = shouldAddColumn;
+
+        screen.SetPixelValue(x, SH - 1 - y, 1);
+
+        found = true;
+        dfs(row + 1);
+
+        screen.SetPixelValue(x, SH - 1 - y, 2);
+
+        colValues[row] = -1;
+      }
     }
+  }
+
+  if (!found)
+  {
+    dfs(row + 1);
+  }
 }
 void main()
 {

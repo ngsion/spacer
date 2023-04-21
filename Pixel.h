@@ -4,8 +4,8 @@
 
 #include <iostream.h>
 #include <vector>
-#define PW 50
-#define PH 40
+#define PW 1024
+#define PH 768
 
 class Pixel
 {
