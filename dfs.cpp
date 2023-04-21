@@ -15,7 +15,7 @@ static bool flag = false;
 #define nValue (SW * SH - PW * PH)
 #define Rectw 6
 #define RectH 6
-#define MaxCount 35 ///在 rectW x rectH 区域内，最多MaxCount个空点
+#define MaxCount 36 ///在 rectW x rectH 区域内，最多MaxCount个空点
 
 int colValues[nValue]; /// 每行的colvalues值
 
@@ -91,11 +91,11 @@ void dfs(int row)
     int shouldAddColumn = -1;
 
     /// 超过一定距离就不放
-    int xStart = x - Rectw/2.0 > 0 ? floor(x - Rectw/2.0) : 0;
-    int xStop = x + Rectw/2.0 > SW -1 ? SW -1 : ceil(x + Rectw/2.0);
-    int yStart = y - Rectw/2.0 > 0 ? floor(y - Rectw/2.0) : 0; 
-    int yStop = y + Rectw/2.0 > SH -1 ? SH -1 : ceil(y + Rectw/2.0);
-    printf("col is %d, x is %d, xStart is %d  , xStop is %d\n, y is %d, yStart is %d, yStop is %d \n",col,x, xStart,xStop,y,yStart,yStop);
+    int xStart = floor(x - Rectw/2.0 > 0) ? floor(x - Rectw/2.0) : 0;
+    int xStop = ceil(x + Rectw/2.0) > SW -1 ? SW -1 : ceil(x + Rectw/2.0);
+    int yStart = floor(y - Rectw/2.0) > 0 ? floor(y - Rectw/2.0) : 0; 
+    int yStop = ceil(y + Rectw/2.0) > SH -1 ? SH -1 : ceil(y + Rectw/2.0);
+  //  printf("col is %d, x is %d, xStart is %d  , xStop is %d, y is %d, yStart is %d, yStop is %d \n",col,x, xStart,xStop,y,yStart,yStop);
     int count = 0;
     for (int index = xStart; index < xStop; index++)
     {
