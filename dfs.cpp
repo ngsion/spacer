@@ -12,10 +12,13 @@
 
 static bool flag = false;
 
+
 #define nValue (SW * SH - PW * PH)
 
 ////算法1： 在某条对角线上，在大于 MinRectWidth 的边长，取最大的那个点放置柱子
-#define MinRectLength 6
+#define MinRectLength 3
+
+
 
 #define Rectw 44
 #define RectH 42
@@ -71,7 +74,7 @@ void dfs(int row)
   /// 前面几行需要特殊处理
   if (row >= 0)
   {
-    int minRectWidth = row;
+    int minRectWidth = MinRectLength;
     int targetCol = -1;
 
     for (int col = 0; col < nValue; col++)
@@ -91,14 +94,8 @@ void dfs(int row)
       {
         continue;
       }
-
-      if (-1 == targetCol)
-      {
-        targetCol = col;
-      }
-
-
-      int tempMinRectWidth = row;
+        
+      int tempMinRectWidth = -1;
       /////找出该行中可以画出最大的正方形，要求没有柱子坐落在正方形内
       for (int index = 0; index < row; index++)
       {
@@ -107,23 +104,32 @@ void dfs(int row)
           int yDiff = row - index;
           int xDiff = abs(col - colValues[index]);
           int width = max(xDiff, yDiff);
-
-          if (width < tempMinRectWidth)
+          if (-1 == tempMinRectWidth)
+          {
+            tempMinRectWidth = width;
+          }
+          else if (width < tempMinRectWidth)
           {
             tempMinRectWidth = width;
           }
         }
       }
+      if (-1 == tempMinRectWidth)
+      {
+        tempMinRectWidth = MinRectLength;
+      }
 
-      if (tempMinRectWidth > minRectWidth)
+      if (tempMinRectWidth >= minRectWidth)
       {
         minRectWidth = tempMinRectWidth;
         targetCol = col;
       }
     }
 
-    printf("add one is %d, targetCol %d \n", minRectWidth, targetCol);
-    if (minRectWidth >= MinRectLength && -1 != targetCol)
+    
+
+   // printf("add one is %d, targetCol %d , row is %d\n", minRectWidth, targetCol, row);
+    if (-1 != targetCol)
     {
 
       colValues[row] = targetCol;
