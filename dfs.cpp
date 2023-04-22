@@ -18,9 +18,9 @@ static bool flag = false;
 #define MinRectLength 6
 
 
-#define Rectw 50
-#define RectH 50
-#define MaxCount 2500 /// 在 rectW x rectH 区域内，最多MaxCount个空点
+#define Rectw 44
+#define RectH 42
+#define MaxCount (Rectw*RectH - 1) /// 在 rectW x rectH 区域内，最多MaxCount个空点
 
 int colValues[nValue]; /// 每行的colvalues值
 
@@ -173,24 +173,29 @@ void dfs(int row)
       int shouldAddColumn = -1;
 
       /// 超过一定距离就不放
-      int xStart = floor(x - Rectw / 2.0 > 0) ? floor(x - Rectw / 2.0) : 0;
-      int xStop = ceil(x + Rectw / 2.0) > SW - 1 ? SW - 1 : ceil(x + Rectw / 2.0);
-      int yStart = floor(y - Rectw / 2.0) > 0 ? floor(y - Rectw / 2.0) : 0;
-      int yStop = ceil(y + Rectw / 2.0) > SH - 1 ? SH - 1 : ceil(y + Rectw / 2.0);
+       int xStop = x + Rectw / 2 > SW - 1 ? SW - 1 :x + Rectw / 2;
+      int xStart = xStop - Rectw + 1 > 0 ? xStop - Rectw + 1 : 0;
+      int yStop = y + RectH / 2 > SH - 1 ? SH - 1 : y + RectH / 2;
+      int yStart = yStop - RectH + 1 > 0 ? yStop - RectH + 1  : 0;
+     
       //  printf("col is %d, x is %d, xStart is %d  , xStop is %d, y is %d, yStart is %d, yStop is %d \n",col,x, xStart,xStop,y,yStart,yStop);
       int count = 0;
-      for (int index = xStart; index < xStop; index++)
+      for (int index = xStart; index <= xStop; index++)
       {
-        for (int idx = yStart; idx < yStop; idx++)
+        for (int idx = yStart; idx <= yStop; idx++)
         {
           if (1 != screen.A[index][SH - 1 - idx])
           {
             ++count;
           }
+          else
+          {
+            break;
+          }
         }
       }
 
-      if (count >= MaxCount)
+      if (count > MaxCount)
       {
         shouldAddColumn = col;
       }
