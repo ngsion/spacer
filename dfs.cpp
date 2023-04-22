@@ -17,10 +17,9 @@ static bool flag = false;
 ////算法1： 在某条对角线上，在大于 MinRectWidth 的边长，取最大的那个点放置柱子
 #define MinRectLength 6
 
-
 #define Rectw 44
 #define RectH 42
-#define MaxCount (Rectw*RectH - 1) /// 在 rectW x rectH 区域内，最多MaxCount个空点
+#define MaxCount (Rectw * RectH - 1) /// 在 rectW x rectH 区域内，最多MaxCount个空点
 
 int colValues[nValue]; /// 每行的colvalues值
 
@@ -28,10 +27,8 @@ Screen screen = Screen();
 
 static int results = 0;
 
-
 void dfs(int row)
 {
-
 
   if (nValue - 1 == row)
   {
@@ -72,10 +69,10 @@ void dfs(int row)
   bool found = false;
 
   /// 前面几行需要特殊处理
-  if (row < 0)
+  if (row >= 0)
   {
-    int minRectWidth = 0;
-    int targetCol = 0;
+    int minRectWidth = row;
+    int targetCol = -1;
 
     for (int col = 0; col < nValue; col++)
     {
@@ -95,10 +92,14 @@ void dfs(int row)
         continue;
       }
 
-      ////将要放柱子的列
-      int shouldAddColumn = -1;
+      if (-1 == targetCol)
+      {
+        targetCol = col;
+      }
 
-      /////找出该行中可以画出最大的正方形，没有柱子坐落在正方形内
+
+      int tempMinRectWidth = row;
+      /////找出该行中可以画出最大的正方形，要求没有柱子坐落在正方形内
       for (int index = 0; index < row; index++)
       {
         if (colValues[index] != -1)
@@ -106,41 +107,37 @@ void dfs(int row)
           int yDiff = row - index;
           int xDiff = abs(col - colValues[index]);
           int width = max(xDiff, yDiff);
-          if (0 == minRectWidth && width > MinRectLength)
+
+          if (width < tempMinRectWidth)
           {
-            minRectWidth = width;
-            targetCol = col;
-          }
-          else
-          {
-            if (width > MinRectLength && width < minRectWidth && y < SW - MinRectLength)
-            {
-              minRectWidth = width;
-              targetCol = col;
-            }
+            tempMinRectWidth = width;
           }
         }
       }
 
-      if (minRectWidth > MinRectLength)
+      if (tempMinRectWidth > minRectWidth)
       {
-        shouldAddColumn = targetCol;
+        minRectWidth = tempMinRectWidth;
+        targetCol = col;
       }
+    }
 
-      if (-1 != shouldAddColumn)
-      {
-        // printf("add one is %d \n", shouldAddColumn);
-        colValues[row] = shouldAddColumn;
+    printf("add one is %d, targetCol %d \n", minRectWidth, targetCol);
+    if (minRectWidth >= MinRectLength && -1 != targetCol)
+    {
 
-        screen.SetPixelValue(x, SH - 1 - y, 1);
+      colValues[row] = targetCol;
+      int x = (row + targetCol + 1 - SH) / 2;
+      int y = (row - targetCol - 1 + SH) / 2;
 
-        found = true;
-        dfs(row + 1);
+      screen.SetPixelValue(x, SH - 1 - y, 1);
 
-        screen.SetPixelValue(x, SH - 1 - y, 2);
+      found = true;
+      dfs(row + 1);
 
-        colValues[row] = -1;
-      }
+      screen.SetPixelValue(x, SH - 1 - y, 2);
+
+      colValues[row] = -1;
     }
   }
   else
@@ -173,11 +170,11 @@ void dfs(int row)
       int shouldAddColumn = -1;
 
       /// 超过一定距离就不放
-       int xStop = x + Rectw / 2 > SW - 1 ? SW - 1 :x + Rectw / 2;
+      int xStop = x + Rectw / 2 > SW - 1 ? SW - 1 : x + Rectw / 2;
       int xStart = xStop - Rectw + 1 > 0 ? xStop - Rectw + 1 : 0;
       int yStop = y + RectH / 2 > SH - 1 ? SH - 1 : y + RectH / 2;
-      int yStart = yStop - RectH + 1 > 0 ? yStop - RectH + 1  : 0;
-     
+      int yStart = yStop - RectH + 1 > 0 ? yStop - RectH + 1 : 0;
+
       //  printf("col is %d, x is %d, xStart is %d  , xStop is %d, y is %d, yStart is %d, yStop is %d \n",col,x, xStart,xStop,y,yStart,yStop);
       int count = 0;
       for (int index = xStart; index <= xStop; index++)
