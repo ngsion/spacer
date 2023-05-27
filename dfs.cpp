@@ -421,11 +421,12 @@ int main()
   printf("starts at \n%s\n", pctime);
   // dfss(nStart);
   int tempEdge = EdgeOffset;
+  int initDiss = MinDistance;
   for (int diff = 0; diff < 10; diff++)
   {
     EdgeOffset = tempEdge + diff;
-    int temp = MinDistance;
-    for (int offset = 0; offset < 30; offset++)
+    int temp = initDiss;
+    for (int offset = 0; offset < 35; offset++)
     {
       MinDistance = temp + offset;
       dfss(nStart);
