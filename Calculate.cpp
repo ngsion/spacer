@@ -1,10 +1,10 @@
-#include <iostream.h>
+#include <iostream>
 #include "PixelHelper.h"
 #include "Screen.h"
 #include <algorithm>
 #include <math.h>
 #include <stdlib.h>
-#include "iterator.h"
+#include <iterator>
  #include <stdio.h>
  #include <string>
  #include "Utility.h"
@@ -246,7 +246,7 @@ int BackTraceFrom(int current)
     return INVALID_VALUE;
 }
 
-void main()
+int main()
 {
 
     pixelHelper.GetAllPossiblePixels();
@@ -306,7 +306,7 @@ void main()
            hasError =  !screen.LoadMatrixFileToA(filename,oldPixelH+1,oldPixelW+1);
              if (hasError)
             {
-                ///Óöµ½´íÎó´ÓÍ·¼ÆËã
+                ///ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½ï¿½ï¿½
                  cout<< "encounter errors , please check 1111" <<endl;
             }
             for (int i = 0; i < oldPixelH; i++)
@@ -336,7 +336,7 @@ void main()
             
             if (hasError)
             {
-                ///Óöµ½´íÎó´ÓÍ·¼ÆËã
+                ///ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½ï¿½ï¿½
                  cout<< "encounter errors , please check" <<endl;
                  index = 1;
                  ivec[1] = INVALID_VALUE;
@@ -713,4 +713,5 @@ void main()
         */
 
     cout << "Hello World Finished! " << lessImperfect << "   " << PW * PH << "  " << targetStart << " maxratio is " <<maxratio  << endl;
+   return 0;
 }

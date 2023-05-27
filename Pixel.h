@@ -2,10 +2,12 @@
 #ifndef _INCLUDE_PIXEL_H_
 #define _INCLUDE_PIXEL_H_
 
-#include <iostream.h>
+#include <iostream>
 #include <vector>
-#define PW 102
-#define PH 76
+#define PW 1024
+#define PH 768
+
+using namespace std;
 
 class Pixel
 {

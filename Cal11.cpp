@@ -1,10 +1,10 @@
-                            #include <iostream.h>
+                            #include <iostream>
 #include "PixelHelper.h"
 #include "Screen.h"
 #include <algorithm>
 #include <math.h>
 #include <stdlib.h>
-#include "iterator.h"
+#include <iterator>
 #include <stdio.h>
 #include <string>
 #include "Utility.h"
@@ -485,7 +485,7 @@ int BackTraceFrom2(int current)
     return INVALID_VALUE;
 }
 
-void main()
+int main()
 {
 
     pixelHelper.GetAllPossiblePixels();
@@ -702,4 +702,6 @@ void main()
 
     cout << "Hello World Finished! "
          << "   " << PW * PH << "  " << endl;
+         
+         return 0;
 }

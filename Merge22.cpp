@@ -1,14 +1,14 @@
-                                                #include <iostream.h>
+                                                #include <iostream>
 #include "PixelHelper.h"
 #include "Screen.h"
 #include <algorithm>
 #include <math.h>
 #include <stdlib.h>
-#include "iterator.h"
+#include <iterator>
  #include <stdio.h>
  #include <string>
  #include "Utility.h"
- #include <iostream.h>
+ #include <iostream>
 #include <fstream>
 #include <stdio.h>
 
@@ -71,6 +71,7 @@
 
 int main()
 {
+   PixelHelper pixelHelper = PixelHelper();
       pixelHelper.GetAllPossiblePixels();
     pixelHelper.PrintOutAllPixels();
    // pixelHelper.SetMapWithoutValue();

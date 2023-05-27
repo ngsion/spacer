@@ -32,3 +32,9 @@
 *.app
 
 *.txt
+*.csv
+
+tempCodeRunnerFile.cpp
+
+log/
+dfs/

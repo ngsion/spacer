@@ -1,10 +1,10 @@
-#include <iostream.h>
+#include <iostream>
 #include "PixelHelper.h"
 #include "Screen.h"
 #include <algorithm>
 #include <math.h>
 #include <stdlib.h>
-#include "iterator.h"
+#include <iterator>
 #include <stdio.h>
 #include <string>
 #include "Utility.h"
@@ -236,7 +236,7 @@ bool Set(int index)
     return false;
 }
 
-void main()
+int main()
 {
 
 
@@ -361,7 +361,7 @@ void main()
             {
                 int row = i % PH;
                 int column = i / PH;
-                ///ÆæÊýÐÐ
+                ///ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 if (column % 2 == 1)
                 {
                     row = PH - row;
@@ -381,5 +381,6 @@ void main()
     }
 
     cout << "Hello World Finished! " << endl;
+    return 0;
 }
 

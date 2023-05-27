@@ -1,6 +1,6 @@
 #ifndef _PIXELHELPER_
 #define _PIXELHELPER_
-#include <iostream.h>
+#include <iostream>
 #include "Pixel.h"
 #include <vector>
 #include <map>

@@ -1,28 +1,90 @@
-#include <iostream.h>
-
+#include <iostream>
 #include "Screen.h"
 #include <algorithm>
+#include <fstream>
 #include <math.h>
 #include <stdlib.h>
-#include "iterator.h"
+#include <iterator>
 #include <stdio.h>
 #include <string>
 #include "Utility.h"
 #include <time.h>
 
-static bool flag = false;
+////算法思路： 在某条对角线上，每一点都进行计算，以该点为圆心作圆，圆内要求没有柱子， 然后取能作最大半径圆那个点来放柱子
 
+/// 参考n皇后的做法，在以nValue为边长的正方形内进行计算
 #define nValue (SW * SH - PW * PH)
+
+////从中心开始向两边展开来放柱子
 #define nStart (nValue / 2)
 
-////算法1： 在某条对角线上，每一点都计算，以该点为圆心的，圆内没有柱子的半径， 然后去最大半径的那个点来放柱子
-int MinDistance = 10;
+////两套坐标系的利率
+#define Ratio 1.414
 
-int colValues[nValue]; /// 每行的colvalues值
+/// @brief 可变参数，标记两个柱子的最小距离要求
+int MinDistance = 3;
+
+////定义边缘最少空行
+int EdgeOffset = 1;
+
+/// 记录每行的colvalues值，index值即为row值
+int colValues[nValue];
 
 Screen screen = Screen();
 
 static int results = 0;
+
+/// @brief 检查x，y的值是否处于边缘
+/// @param x
+/// @param y
+/// @return
+bool checkXY(int x, int y)
+{
+  if (x <= EdgeOffset || y <= EdgeOffset || (SW - x) <= EdgeOffset || (SH - y) <= EdgeOffset)
+  {
+    return true;
+  }
+  return false;
+
+  if (MinDistance <= x && x <= SW - MinDistance && (y <= MinDistance || (SH - y) <= MinDistance))
+  {
+    return true;
+  }
+
+  if (MinDistance <= y && y <= SH - MinDistance && (x <= MinDistance || (SW - x) <= MinDistance))
+  {
+    return true;
+  }
+
+  if (x < MinDistance)
+  {
+    if (y < MinDistance && x * x + y * y < MinDistance * MinDistance * Ratio)
+    {
+      return true;
+      ;
+    }
+
+    if ((SH - y) < MinDistance && x * x + (SH - y) * (SH - y) < MinDistance * MinDistance * Ratio)
+    {
+      return true;
+    }
+  }
+
+  if (x > SW - MinDistance)
+  {
+    if (y < MinDistance && (SW - x) * (SW - x) + y * y < MinDistance * MinDistance * Ratio)
+    {
+      return true;
+    }
+
+    if ((SH - y) < MinDistance && (SW - x) * (SW - x) + (SH - y) * (SH - y) < MinDistance * MinDistance * Ratio)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 void dfs(int row)
 {
@@ -45,39 +107,63 @@ void dfs(int row)
       }
     }
 
+    ofstream outFile;
+    char filename[64] = {0};
+
+    sprintf(filename, "dfs/result_%dX%d_distance_%d_%d.csv", PW, PH, EdgeOffset, MinDistance);
+
+    outFile.open(filename);
+
     int maxDistance = 0;
     for (int a = 0; a < nValue; a++)
     {
+      if (-1 == colValues[a])
+        continue;
+
+      ////找出离a点柱子最近的柱子的距离
       int dis = 0;
       for (int b = 0; b < nValue; b++)
       {
-        if (a != b)
+        if (-1 == colValues[b])
+          continue;
+        if (a == b)
+          continue;
+
+        int y = abs(a - b);
+        int x = abs(colValues[a] - colValues[b]);
+        int tempdis = x * x + y * y;
+        if (0 == dis)
         {
-          int y = abs(a - b);
-          int x = abs(colValues[a] - colValues[b]);
-          int tempdis = x * x + y * y;
-          if (0 == dis)
-          {
-            dis = tempdis;
-          }
-          else if (tempdis < dis)
-          {
-            dis = tempdis;
-          }
+          dis = tempdis;
+        }
+        else if (tempdis < dis)
+        {
+          dis = tempdis;
         }
       }
+
+      int xpos = (a + colValues[a] + 1 - SH) / 2;
+      int ypos = (a - colValues[a] - 1 + SH) / 2;
+
+      // return ;
+
+      outFile << xpos << "," << ypos << "," << sqrt((dis * 1.0) / Ratio) << endl;
+
       if (0 == maxDistance)
-          {
-            maxDistance = dis;
-          }
-          else if (maxDistance < dis)
-          {
-            maxDistance = dis;
-          }
+      {
+        maxDistance = dis;
+      }
+      else if (maxDistance < dis)
+      {
+        maxDistance = dis;
+      }
     }
 
-    screen.PrintOut(maxDistance);
-    printf("get one result %d , pole count %d, ratio is %f\n", results, screen.GetPoleCount(), screen.GetPoleRatio());
+    outFile.close();
+
+    printf("get one result %d , pole count %d, ratio is %f, maxdis %f\n", results, screen.GetPoleCount(), screen.GetPoleRatio(), sqrt((maxDistance * 1.0) / Ratio));
+
+    screen.PrintOut(EdgeOffset, MinDistance, maxDistance);
     ++results;
 
     ////打印完了，恢复，用于下一次计算
@@ -97,13 +183,12 @@ void dfs(int row)
     return;
   }
 
+  /// 在当前对角线上是否找到了结果标识
   bool found = false;
 
-  /// 方法1
+  int mDistance = MinDistance * MinDistance * Ratio;
 
-  int mDistance = MinDistance * MinDistance;
   int targetCol = -1;
-
   for (int col = 0; col < nValue; col++)
   {
 
@@ -123,13 +208,13 @@ void dfs(int row)
       continue;
     }
 
-    if (x <= MinDistance || y <= MinDistance || (SW - x) <= MinDistance || (SH - y) <= MinDistance)
+    if (checkXY(x, y))
     {
       continue;
     }
 
     int tempDiff = 0;
-    /////找出该行中可以画出最大的正方形，要求没有柱子坐落在正方形内
+    /////找出以 row ，col 为圆心能画出的最大圆的半径
     for (int index = 0; index < row; index++)
     {
       if (colValues[index] != -1)
@@ -150,6 +235,7 @@ void dfs(int row)
       }
     }
 
+    ////找到最需要放柱子的地方
     if (tempDiff >= mDistance)
     {
       mDistance = tempDiff;
@@ -160,7 +246,7 @@ void dfs(int row)
   // printf("add one is %d, targetCol %d , row is %d\n", minRectWidth, targetCol, row);
   if (-1 != targetCol)
   {
-   // printf("set col for row , row is %d, col is %d, mDistance is %d\n", row, targetCol, mDistance);
+    // printf("set col for row , row is %d, col is %d, mDistance is %d\n", row, targetCol, mDistance);
 
     colValues[row] = targetCol;
     int x = (row + targetCol + 1 - SH) / 2;
@@ -193,7 +279,7 @@ void dfsr(int row)
 
   bool found = false;
 
-  int mDistance = MinDistance * MinDistance;
+  int mDistance = MinDistance * MinDistance * Ratio;
   int targetCol = -1;
 
   for (int col = 0; col < nValue; col++)
@@ -214,13 +300,13 @@ void dfsr(int row)
       continue;
     }
 
-    if (x <= MinDistance || y <= MinDistance || (SW - x) <= MinDistance || (SH - y) <= MinDistance)
+    if (checkXY(x, y))
     {
       continue;
     }
 
     int tempDiff = 0;
-    /////找出该行中可以画出最大的正方形，要求没有柱子坐落在正方形内
+    /////////找出以 row ，col 为圆心能画出的最大圆的半径
     for (int index = nStart; index > row; index--)
     {
       if (colValues[index] != -1)
@@ -250,7 +336,7 @@ void dfsr(int row)
   // printf("add one is %d, targetCol %d , row is %d\n", minRectWidth, targetCol, row);
   if (-1 != targetCol)
   {
-  //  printf("set col for row , row is %d, col is %d, mDistance is %d\n", row, targetCol, mDistance);
+    //  printf("set col for row , row is %d, col is %d, mDistance is %d\n", row, targetCol, mDistance);
 
     colValues[row] = targetCol;
     int x = (row + targetCol + 1 - SH) / 2;
@@ -312,8 +398,9 @@ void dfss(int row)
   screen.SetPixelValue(x, SH - 1 - y, 2);
 }
 
-void main()
+int main()
 {
+
   for (int x = 0; x < SW; x++)
   {
     for (int y = 0; y < SH; y++)
@@ -332,15 +419,21 @@ void main()
   timer0 = time(NULL);
   char *pctime = ctime(&timer0);
   printf("starts at \n%s\n", pctime);
-  dfss(nStart);
-  // int temp = MinRectLength;
-  // for (int offset = 0; offset < 30; offset++)
-  // {
-  //   MinRectLength = temp + offset;
-  //   dfss(nStart);
-  // }
+  // dfss(nStart);
+  int tempEdge = EdgeOffset;
+  for (int diff = 0; diff < 10; diff++)
+  {
+    EdgeOffset = tempEdge + diff;
+    int temp = MinDistance;
+    for (int offset = 0; offset < 30; offset++)
+    {
+      MinDistance = temp + offset;
+      dfss(nStart);
+    }
+  }
 
   timer0 = time(NULL);
   pctime = ctime(&timer0);
   printf("\nends with %d results , at %s\n", results, pctime);
+  return 0;
 }

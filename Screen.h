@@ -1,7 +1,7 @@
 
 #ifndef __Screeen_
 #define __Screeen_
-#include <iostream.h>
+#include <iostream>
 #include <fstream>
 #include <stdio.h>
 #include "Pixel.h"
@@ -26,7 +26,7 @@ public:
     void SetPixelValue(int x, int y, int value);
     int GetPixelValue(int x, int y);
     bool TrySetOnePixel(int xpos, int ypos, Pixel *pixel);
-    void PrintOut(int flag,int flag2);
+    void PrintOut(int flag,int flag2,int flag3);
     float GetPoleRatio();
     int GetPoleCount();
     Pixel GetPixelFromA(int x,int y);
@@ -74,7 +74,7 @@ Screen::Screen()
           return rowTop == rowBottom;
         }
 
-void Screen::PrintOut(int flag,int flag2 = -1)
+void Screen::PrintOut(int flag,int flag2 = -1,int flag3 = -1)
 {
     // return ;
     ofstream outFile; 
@@ -82,9 +82,14 @@ void Screen::PrintOut(int flag,int flag2 = -1)
     if ( flag2 == -1 )
     {
         sprintf(filename, "dfs/result_%dX%d_start_%d.txt", PW, PH, flag);
-    }else
+
+    }else  if ( flag3 == -1 )
     {
          sprintf(filename, "dfs/result_%dX%d_start_%d_%d.txt", PW, PH, flag,flag2);
+    }
+    else
+    {
+         sprintf(filename, "dfs/result_%dX%d_start_%d_%d_%d.txt", PW, PH, flag,flag2,flag3);
     }
     outFile.open(filename); 
     for (int y = SH - 1; y >= 0; y--)

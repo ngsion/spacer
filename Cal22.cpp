@@ -1,10 +1,10 @@
-#include <iostream.h>
+#include <iostream>
 #include "PixelHelper.h"
 #include "Screen.h"
 #include <algorithm>
 #include <math.h>
 #include <stdlib.h>
-#include "iterator.h"
+#include <iterator>
 #include <stdio.h>
 #include <string>
 #include "Utility.h"
@@ -432,7 +432,7 @@ bool Set(int index)
     return false;
 }
 
-void main()
+int main()
 {
 
 
@@ -772,5 +772,7 @@ void main()
 
     cout << "Hello World Finished! "
          << "   " << PW * PH << "  " << targetStart << " maxratio is " << maxratio << endl;
+
+         return 0;
 }
 
