@@ -22,7 +22,7 @@
 #define Ratio 1.414
 
 /// @brief 可变参数，标记两个柱子的最小距离要求
-int MinDistance = 3;
+int MinDistance = 6;
 
 ////定义边缘最少空行
 int EdgeOffset = 1;
@@ -86,6 +86,9 @@ bool checkXY(int x, int y)
   return false;
 }
 
+
+/// @brief 从中间向右下角遍历
+/// @param row 
 void dfs(int row)
 {
 
@@ -113,7 +116,7 @@ void dfs(int row)
     sprintf(filename, "dfs/result_%dX%d_distance_%d_%d.csv", PW, PH, EdgeOffset, MinDistance);
 
     outFile.open(filename);
-
+    
     int maxDistance = 0;
     for (int a = 0; a < nValue; a++)
     {
@@ -147,7 +150,7 @@ void dfs(int row)
 
       // return ;
 
-      outFile << xpos << "," << ypos << "," << sqrt((dis * 1.0) / Ratio) << endl;
+      outFile << xpos << "  " << ypos << "  " << sqrt((dis * 1.0) / Ratio) << endl;
 
       if (0 == maxDistance)
       {
@@ -268,6 +271,9 @@ void dfs(int row)
   }
 }
 
+
+/// @brief 从中间向左上角开始遍历
+/// @param row 
 void dfsr(int row)
 {
 
@@ -358,6 +364,8 @@ void dfsr(int row)
   }
 }
 
+/// @brief 处理start的位置
+/// @param row 
 void dfss(int row)
 {
 

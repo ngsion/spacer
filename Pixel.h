@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <vector>
-#define PW 1024
-#define PH 768
+#define PW 648
+#define PH 480
 
 using namespace std;
 

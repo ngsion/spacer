@@ -16,9 +16,81 @@ using namespace std;
 #define TheW 24
 #define TheH 4
 #define TheCount 6
-#define TheRow 3065
+#define TheRow 3072
 #define TheMaxNum 33
 #define TheLength 12 ////取前面几个
+#define TheRelatedCount 12
+#define TheTestInCount 24 /// 判断下一期是否在当前数字的Related序列中,此值小于等于 33
+
+static int target[TheCount][TheRow];
+static vector<vector<int>> alltargets;
+/// @brief 获取所有历史
+void getAllTargets();
+
+/// @brief 加载序列文件
+void testNumbers(vector<int> testqi);
+
+static map<int, vector<pair<int, int>>> relatedClosePredict;
+/// @brief 计算单个数字后面出现的序列 TheRelatedCount
+void calculateRelatedNumbers(vector<int> testqi);
+
+// 判断qishu+1期是否在当前qishu的数字的Related序列中
+void testRelatedByQishu(int qishu);
+void testRelatedByQishuNext(int qishu);
+
+/// @brief 计算前两期的冷热码
+void calculateHotCold(int qishu);
+
+/// @brief 另一种计算方式，单个数字后面的一期6个数字
+void calculateAfterByQishu(vector<int> testqi);
+
+/// @brief 获取当期序列
+/// @return
+vector<int> getVectorByQiShu(int qishu);
+
+int main()
+{
+
+    int testQishu = 3071;
+
+    getAllTargets();
+
+    vector<int> testqi = getVectorByQiShu(3071);
+    print_vetor(testqi);
+
+    // calculateAfterByQishu(testqi);
+
+    calculateRelatedNumbers(testqi);
+
+    for (int index = 3040; index < testQishu; index++)
+    {
+
+        calculateHotCold(index+1);
+         testRelatedByQishu(index);
+        //  if(index+1 < testQishu)
+        // testRelatedByQishuNext(index);
+    }
+    // testNumbers(testqi);
+    return 0;
+}
+
+bool LoadMatrixFileToA(const char *fileName, int column, int row, int A[TheW][TheH]);
+
+bool LoadMatrixFileToT(const char *fileName, int column, int row, int A[TheCount][TheRow]);
+
+int cmp(const pair<int, int> &x, const pair<int, int> &y)
+{
+    return x.second > y.second;
+}
+
+void sortMapByValue(map<int, int> &tMap, vector<pair<int, int>> &tVector)
+{
+    for (map<int, int>::iterator curr = tMap.begin(); curr != tMap.end(); curr++)
+        tVector.push_back(make_pair(curr->first, curr->second));
+
+    sort(tVector.begin(), tVector.end(), cmp);
+}
+
 bool LoadMatrixFileToA(const char *fileName, int column, int row, int A[TheW][TheH])
 {
 
@@ -47,6 +119,7 @@ bool LoadMatrixFileToA(const char *fileName, int column, int row, int A[TheW][Th
 
     return true;
 }
+
 bool LoadMatrixFileToT(const char *fileName, int column, int row, int A[TheCount][TheRow])
 {
 
@@ -74,53 +147,58 @@ bool LoadMatrixFileToT(const char *fileName, int column, int row, int A[TheCount
 
     return true;
 }
-int cmp(const pair<int, int> &x, const pair<int, int> &y)
+
+vector<int> getVectorByQiShu(int qishu)
 {
-    return x.second > y.second;
-}
+    vector<int> onetarget;
+    cout << "getVectorByQiShu qishu " << qishu + 1 << endl;
 
-void sortMapByValue(map<int, int> &tMap, vector<pair<int, int>> &tVector)
-{
-    for (map<int, int>::iterator curr = tMap.begin(); curr != tMap.end(); curr++)
-        tVector.push_back(make_pair(curr->first, curr->second));
-
-    sort(tVector.begin(), tVector.end(), cmp);
-}
-
-int main()
-{
-    int A[TheW][TheH];
-    char filename[64] = {0};
-
-    int target[TheCount][TheRow];
-
-    int intmap[TheH] = {0};
-    for (int idx = 0; idx < TheH; idx++)
+    if (qishu >= 0 && qishu < alltargets.size())
     {
-        intmap[idx] = 0;
+        print_vetor(alltargets[qishu]);
+        return alltargets[qishu];
     }
 
-    int testQishu = 3054;
-    
-    vector<int> testNumber;
-    testNumber.push_back(2);
-    testNumber.push_back(11);
-    testNumber.push_back(14);
-    testNumber.push_back(17);
-    testNumber.push_back(18);
-    testNumber.push_back(28);
+    return onetarget;
+}
 
-    map<int, int> beforeCount;
-    map<int, int> currentCount;
-    map<int, int> afterCount;
-
+void getAllTargets()
+{
+    char filename[64] = {0};
     sprintf(filename, "targets.txt");
     if (isFileExists_fopen(filename))
     {
         LoadMatrixFileToT(filename, TheCount, TheRow, target);
     }
 
-    vector<vector<int>> alltargets;
+    for (int row = 0; row < TheRow; row++)
+    {
+
+        vector<int> onetarget;
+
+        for (int idx = 0; idx < TheCount; idx++)
+        {
+            onetarget.push_back(target[idx][row]);
+            // cout << "is " << target[idx][row] << endl;
+        }
+
+        alltargets.push_back(onetarget);
+    }
+    print_vetor(alltargets.back());
+}
+
+void testNumbers(vector<int> testqi)
+{
+    cout << "testnumbers start" << endl;
+    print_vetor(testqi);
+    int A[TheW][TheH];
+    char filename[64] = {0};
+
+    int intmap[TheH] = {0};
+    for (int idx = 0; idx < TheH; idx++)
+    {
+        intmap[idx] = 0;
+    }
 
     filename[64] = {0};
     sprintf(filename, "numbers.txt");
@@ -130,112 +208,453 @@ int main()
         LoadMatrixFileToA(filename, TheW, TheH, A);
     }
 
-    vector<int> sigleColumn;
-    int nomatchcount = 0;
-
-    for (int row = 0; row < TheRow; row++)
+    for (int count = 0; count < TheH; count++)
     {
+        bool foundall = true;
 
-        vector<int> onetarget;
-        vector<int> oneColumn;
-
-        for (int idx = 0; idx < TheCount; idx++)
+        for (int index = 0; index < testqi.size(); index++)
         {
-            onetarget.push_back(target[idx][row]);
-            // cout << "is " << target[idx][row] << endl;
-        }
-
-        alltargets.push_back(onetarget);
-
-        for (int ypos = 0; ypos < TheH; ypos++)
-        {
-
-            bool match = true;
-
-            for (int idx = 0; idx < TheCount; idx++)
+            bool found = false;
+            for (int idx = 0; idx < TheW; idx++)
             {
-
-                bool found = false;
-                for (int xpos = 0; xpos < TheW; xpos++)
+                if (testqi[index] == A[idx][count])
                 {
-                    if (A[xpos][ypos] == target[idx][row])
-                    {
-                        found = true;
-                        break;
-                    }
-                    //   cout << "a x y " << xpos <<  "  " << ypos << "  " << A[xpos][ypos] <<endl;
-                }
-                if (!found)
-                {
-                    match = false;
+                    found = true;
                     break;
                 }
             }
 
-            if (match)
+            if (!found)
             {
-                oneColumn.push_back(ypos + 1);
-                ++intmap[ypos];
+                foundall = false;
+                break;
             }
         }
 
-        if (oneColumn.size() >= 1)
+        if (foundall)
         {
-            // sigleColumn.push_back(oneColumn.back());
-            //    print_vetor(onetarget);
-            //  cout << "matchs " ;
-            //   print_vetor(oneColumn);
-            //  cout << " " << endl;
+            cout << "find in index " << count << endl;
         }
         else
         {
-            //  print_vetor(onetarget);
-            //  cout << " no matchs " <<endl ;
-            nomatchcount++;
+            cout << "can not find in index " << count << endl;
         }
     }
+}
 
-    for (int idx = 0; idx < TheH; idx++)
+void testRelatedByQishu(int qishu)
+{
+    cout << "testRelatedByQishu" << endl;
+    vector<int> currentQi = getVectorByQiShu(qishu);
+    vector<int> nextQi = getVectorByQiShu(qishu + 1);
+    for (int index = 0; index < TheCount; index++)
     {
-        // cout << " " << idx + 1 << "   " << intmap[idx] << endl;
-    }
-    // cout << " nomatchcount " << nomatchcount << endl;
-    // print_vetor(sigleColumn);
+        int number = currentQi[index];
+        vector<pair<int, int>> dVector = relatedClosePredict[number];
+        //    cout << "testRelatedByQishu " << number<<endl;
+        //      for (int i = 0; i < dVector.size(); i++)
+        //     {
+        //         cout << dVector[i].first << " ";
+        //     }
+        //     cout << endl;
+        //     for (int i = 0; i < dVector.size(); i++)
+        //     {
+        //         cout << dVector[i].second << " ";
+        //     }
 
-    ////////////////////////////////////////
-     cout << "test alltargets.size() " << alltargets.size() << endl;
-    map<int, vector<int>> allPredict;
-    for (int idx = 0; idx < alltargets.size(); idx++)
-    {
-        vector<int> onetarget = alltargets[idx];
+        int foundCount = 0;
 
-        if (idx == testQishu)
+        for (int count = 0; count < TheCount; count++)
         {
-            testNumber = onetarget;
-            cout << "test qishu " << testQishu+1 << endl;
-            print_vetor(onetarget);
+            int findNumber = nextQi[count];
+
+            // cout << " findNumber " << findNumber <<endl;
+            // for (int i = 0; i < dVector.size(); i++)
+            // {
+            //     cout <<  dVector[i].first << " ";
+            // }
+            //  cout << " findNumber end" << findNumber <<endl;
+
+            for (int i = 0; i < TheTestInCount; i++)
+            {
+                //  cout << " findNumber  " << findNumber << " i " << i <<  " dVector[i].first  " << dVector[i].first <<endl;
+                if (findNumber == dVector[i].first)
+                {
+                    ++foundCount;
+                    break;
+                }
+            }
+        }
+
+        if (foundCount == TheCount)
+        {
+            cout << " test qishu " << qishu << "  foundAll 1 "
+                 << " at " << index << " number is " << number << " foundCount is " << foundCount << " TheTestInCount is " << TheTestInCount << endl;
+            // break;
+        }
+        else
+        {
+            cout << " test qishu " << qishu << "  foundAll 0 "
+                 << " at " << index << " number is " << number << " foundCount is " << foundCount << " TheTestInCount is " << TheTestInCount << endl;
         }
     }
+}
+
+void testRelatedByQishuNext(int qishu)
+{
+    cout << "testRelatedByQishuNext" << endl;
+    vector<int> currentQi = getVectorByQiShu(qishu);
+    vector<int> nextQi = getVectorByQiShu(qishu + 2);
+    for (int index = 0; index < TheCount; index++)
+    {
+        int number = currentQi[index];
+        vector<pair<int, int>> dVector = relatedClosePredict[number];
+        //    cout << "testRelatedByQishu " << number<<endl;
+        //      for (int i = 0; i < dVector.size(); i++)
+        //     {
+        //         cout << dVector[i].first << " ";
+        //     }
+        //     cout << endl;
+        //     for (int i = 0; i < dVector.size(); i++)
+        //     {
+        //         cout << dVector[i].second << " ";
+        //     }
+
+        int foundCount = 0;
+
+        for (int count = 0; count < TheCount; count++)
+        {
+            int findNumber = nextQi[count];
+
+            // cout << " findNumber " << findNumber <<endl;
+            // for (int i = 0; i < dVector.size(); i++)
+            // {
+            //     cout <<  dVector[i].first << " ";
+            // }
+            //  cout << " findNumber end" << findNumber <<endl;
+
+            for (int i = 0; i < TheTestInCount; i++)
+            {
+                //  cout << " findNumber  " << findNumber << " i " << i <<  " dVector[i].first  " << dVector[i].first <<endl;
+                if (findNumber == dVector[i].first)
+                {
+                    ++foundCount;
+                    break;
+                }
+            }
+        }
+
+        if (foundCount == TheCount)
+        {
+            cout << " test qishu " << qishu << "  foundAll 1 "
+                 << " at " << index << " number is " << number << " foundCount is " << foundCount << " TheTestInCount is " << TheTestInCount << endl;
+            // break;
+        }
+        else
+        {
+            cout << " test qishu " << qishu << "  foundAll 0 "
+                 << " at " << index << " number is " << number << " foundCount is " << foundCount << " TheTestInCount is " << TheTestInCount << endl;
+        }
+    }
+}
+
+void calculateHotCold(int qishu)
+{
+    cout << "----------calculateHotCold " << qishu << endl;
+    vector<int> oldQi = getVectorByQiShu(qishu - 2);
+    vector<int> lastQi = getVectorByQiShu(qishu - 1);
+    
+    vector<int> hotresult;
+
+    int number = lastQi[0];
+    vector<pair<int, int>> dVector = relatedClosePredict[number];
+    for (int index = 0; index < 24; index++)
+    {
+        int testNumber = dVector[index].first;
+        bool found = true;
+        for (int idx = 1; idx < TheCount; idx++)
+        {
+            int number2 = lastQi[idx];
+            vector<pair<int, int>> dVector2 = relatedClosePredict[number2];
+            bool isIn = false;
+            for (int i = 0; i < 24; i++)
+            {
+                //  cout << " findNumber  " << findNumber << " i " << i <<  " dVector[i].first  " << dVector[i].first <<endl;
+                if (testNumber == dVector2[i].first)
+                {
+                    isIn = true;
+                    break;
+                }
+            }
+            if (!isIn)
+            {
+                found = false;
+                break;
+            }
+        }
+
+        if (found)
+        {
+
+            for (int idx = 0; idx < TheCount; idx++)
+            {
+                int number2 = oldQi[idx];
+                vector<pair<int, int>> dVector2 = relatedClosePredict[number2];
+                bool isIn = false;
+                for (int i = 0; i < 24; i++)
+                {
+                    //  cout << " findNumber  " << findNumber << " i " << i <<  " dVector[i].first  " << dVector[i].first <<endl;
+                    if (testNumber == dVector2[i].first)
+                    {
+                        isIn = true;
+                        break;
+                    }
+                }
+                if (!isIn)
+                {
+                    found = false;
+                    break;
+                }
+            }
+        }
+        if (found)
+        {
+            hotresult.push_back(testNumber);
+        }
+    }
+ cout << "HotCode:  ";
+    print_vetor(hotresult);
+
+    vector<int> coldresult;
+
+     number = lastQi[0];
+    dVector = relatedClosePredict[number];
+    for (int index = 9; index < 33; index++)
+    {
+        int testNumber = dVector[index].first;
+        bool found = true;
+        for (int idx = 1; idx < TheCount; idx++)
+        {
+            int number2 = lastQi[idx];
+            vector<pair<int, int>> dVector2 = relatedClosePredict[number2];
+            bool isIn = false;
+            for (int i = 9; i < 33; i++)
+            {
+                //  cout << " findNumber  " << findNumber << " i " << i <<  " dVector[i].first  " << dVector[i].first <<endl;
+                if (testNumber == dVector2[i].first)
+                {
+                    isIn = true;
+                    break;
+                }
+            }
+            if (!isIn)
+            {
+                found = false;
+                break;
+            }
+        }
+
+        if (found)
+        {
+
+            for (int idx = 0; idx < TheCount; idx++)
+            {
+                int number2 = oldQi[idx];
+                vector<pair<int, int>> dVector2 = relatedClosePredict[number2];
+                bool isIn = false;
+                for (int i = 9; i < 33; i++)
+                {
+                    //  cout << " findNumber  " << findNumber << " i " << i <<  " dVector[i].first  " << dVector[i].first <<endl;
+                    if (testNumber == dVector2[i].first)
+                    {
+                        isIn = true;
+                        break;
+                    }
+                }
+                if (!isIn)
+                {
+                    found = false;
+                    break;
+                }
+            }
+        }
+        if (found)
+        {
+            coldresult.push_back(testNumber);
+        }
+    }
+
+cout << "ColdCode:  ";
+    print_vetor(coldresult);
+    
+    getVectorByQiShu(qishu);
+     cout << "----------calculateHotCold end " << qishu << endl;
+}
+
+void calculateRelatedNumbers(vector<int> testqi)
+{
+
+    map<int, vector<int>> relativeNumbers;
+
+    map<int, vector<int>> allPredict;
     for (int idx = 0; idx < TheCount; idx++)
     {
         vector<int> onePredict;
-        allPredict[testNumber[idx]] = onePredict;
+        allPredict[testqi[idx]] = onePredict;
     }
-    map<int, int> predictCount;
-
     map<int, int> anotherPredict;
     for (int idx = 0; idx < TheMaxNum; idx++)
     {
         anotherPredict[idx] = 0;
     }
+
+    vector<int> allNumbers;
+    for (int idx = 0; idx < alltargets.size(); idx++)
+    {
+        vector<int> onetarget = alltargets[idx];
+        allNumbers.insert(allNumbers.end(), onetarget.begin(), onetarget.end());
+    }
+
+    for (int idx = 0; idx < TheMaxNum; idx++)
+    {
+        vector<int> one;
+        relativeNumbers[idx + 1] = one;
+    }
+    int maxnumbers = allNumbers.size();
+    for (int idx = 0; idx < maxnumbers; idx++)
+    {
+
+        int number = allNumbers[idx];
+
+        for (int pos = idx + 1, count = TheRelatedCount; pos<maxnumbers, count> 0; pos++, count--)
+        {
+            if (pos >= maxnumbers - 1)
+            {
+                break;
+            }
+            int onenumber = allNumbers[pos];
+
+            relativeNumbers[number].push_back(onenumber);
+        }
+    }
+
+    for (auto it = relativeNumbers.begin(); it != relativeNumbers.end(); it++)
+    {
+
+        int number = it->first;
+        map<int, int> predict;
+        for (int idx = 0; idx < TheMaxNum; idx++)
+        {
+            predict[idx + 1] = 0;
+        }
+
+        for (auto itor = it->second.begin(); itor != it->second.end(); itor++)
+        {
+            predict[*itor] = predict[*itor] + 1;
+        }
+        cout << " after number " << number << endl;
+        vector<pair<int, int>> dVector;
+        sortMapByValue(predict, dVector);
+        for (int i = 0; i < dVector.size(); i++)
+        {
+            cout << dVector[i].first << " ";
+        }
+        cout << endl;
+        for (int i = 0; i < dVector.size(); i++)
+        {
+            cout << dVector[i].second << " ";
+        }
+        relatedClosePredict[number] = dVector;
+        cout << endl;
+        cout << endl;
+        dVector.clear();
+
+        for (int idx = 0; idx < TheCount; idx++)
+        {
+            if (number == testqi[idx])
+            {
+                // cout << " findNumber is " << findNumber << endl;
+                for (int i = 0; i < TheLength; i++)
+                {
+                    allPredict[testqi[idx]].push_back(dVector[i].first);
+                    //  allPredict[testNumber[idx]].push_back(bVector[i].first + 1);
+                    //  allPredict[testNumber[idx]].push_back(cVector[i].first + 1);
+
+                    // cout << " first " << cVector[i].first << "  sedond " << cVector[i].second << endl;
+                    // anotherPredict[cVector[i].first] += cVector[i].second;
+                    anotherPredict[dVector[i].first] += dVector[i].second;
+                    // anotherPredict[bVector[i].first] += bVector[i].second;
+                }
+            }
+        }
+    }
+
+    map<int, int> predictCount;
+    for (auto it = allPredict.begin(); it != allPredict.end(); it++)
+    {
+        cout << " " << it->first << "   " << endl;
+        print_vetor(it->second);
+        for (auto itor = it->second.begin(); itor != it->second.end(); itor++)
+        {
+            int value = *itor;
+            if (predictCount.find(value) == predictCount.end())
+            {
+                predictCount[value] = 0;
+            }
+            // cout << " value " << value << "   " << predictCount[value];
+            predictCount[value] = predictCount[value] + 1;
+        }
+    }
+
+    for (auto it = predictCount.begin(); it != predictCount.end(); it++)
+    {
+        cout << it->first << " " << it->second << " " << endl;
+    }
+    // vector<pair<int, int>> dVector;
+    // sortMapByValue(predictCount, dVector);
+    // for (int i = 0; i < dVector.size(); i++)
+    //     cout << dVector[i].first << " " << dVector[i].second << " " << endl;
+
+    cout << "another predict " << endl;
+    for (auto itor = anotherPredict.begin(); itor != anotherPredict.end(); itor++)
+    {
+        cout << itor->first << " " << itor->second << endl;
+    }
+}
+
+void calculateAfterByQishu(vector<int> testqi)
+{
+    map<int, int> beforeCount;
+    map<int, int> currentCount;
+    map<int, int> afterCount;
+
+    ////////////////////////////////////////
+    cout << "test alltargets.size() " << alltargets.size() << endl;
+
+    map<int, vector<int>> allPredict;
+    for (int idx = 0; idx < TheCount; idx++)
+    {
+        vector<int> onePredict;
+        allPredict[testqi[idx]] = onePredict;
+    }
+
+    map<int, int> predictCount;
+
+    map<int, int> anotherPredict;
+    for (int idx = 0; idx < TheMaxNum; idx++)
+    {
+        anotherPredict[idx + 1] = 0;
+    }
+
     for (int number = 0; number < TheMaxNum; number++)
     {
         int findNumber = number + 1;
+        //  cout << "findNumber  start " << findNumber << endl;
         for (int idx = 0; idx < TheMaxNum; idx++)
         {
-            beforeCount[idx] = 0;
-            currentCount[idx] = 0;
-            afterCount[idx] = 0;
+            beforeCount[idx + 1] = 0;
+            currentCount[idx + 1] = 0;
+            afterCount[idx + 1] = 0;
         }
 
         for (int idx = 0; idx < alltargets.size(); idx++)
@@ -246,28 +665,29 @@ int main()
             {
                 if (onetarget[index] == findNumber)
                 {
-                    for (int index = 0; index < onetarget.size(); index++)
+                    for (int count = 0; count < onetarget.size(); count++)
                     {
-                        currentCount[onetarget[index] - 1] = currentCount[onetarget[index] - 1] + 1;
+                        ++currentCount[onetarget[count]];
                     }
 
                     if (idx >= 1)
                     {
                         vector<int> beforetarget = alltargets[idx - 1];
-                        for (int index = 0; index < beforetarget.size(); index++)
+                        for (int count = 0; count < beforetarget.size(); count++)
                         {
-                            beforeCount[beforetarget[index] - 1] = beforeCount[beforetarget[index] - 1] + 1;
+                            ++beforeCount[beforetarget[count]];
                         }
                     }
 
                     if (idx < alltargets.size() - 1)
                     {
                         vector<int> aftertarget = alltargets[idx + 1];
-                        for (int index = 0; index < aftertarget.size(); index++)
+                        for (int count = 0; count < aftertarget.size(); count++)
                         {
-                            afterCount[aftertarget[index] - 1] = afterCount[aftertarget[index] - 1] + 1;
+                            ++afterCount[aftertarget[count]];
                         }
                     }
+                    break;
                 }
             }
             // cout << "is " << target[idx][row] << endl;
@@ -285,63 +705,63 @@ int main()
         vector<pair<int, int>> aVector;
         sortMapByValue(afterCount, aVector);
 
-        // {
-        //     cout << "before" << findNumber << endl;
-        //     for (int i = 0; i < bVector.size(); i++)
-        //         cout << 1 + bVector[i].first << " ";
-        //     cout << endl;
-        //     for (int i = 0; i < bVector.size(); i++)
-        //         cout << bVector[i].second << " ";
+        {
+            cout << "before" << findNumber << endl;
+            for (int i = 0; i < bVector.size(); i++)
+                cout << bVector[i].first << " ";
+            cout << endl;
+            for (int i = 0; i < bVector.size(); i++)
+                cout << bVector[i].second << " ";
 
-        //     //  for (auto it = beforeCount.begin(); it != beforeCount.end(); it++)
-        //     // {
-        //     //     cout << " " << 1+it->first << "   " << it->second<< endl;
-        //     // }
-        //     cout << endl;
+            //  for (auto it = beforeCount.begin(); it != beforeCount.end(); it++)
+            // {
+            //     cout << " " << 1+it->first << "   " << it->second<< endl;
+            // }
+            cout << endl;
 
-        //     cout << "current" << findNumber << endl;
+            cout << "current" << findNumber << endl;
 
-        //     //  for (auto it = currentCount.begin(); it != currentCount.end(); it++)
-        //     // {
-        //     //     cout << " " << 1+it->first << "   " << it->second<< endl;
-        //     // }
-        //     for (int i = 0; i < cVector.size(); i++)
-        //         cout << 1 + cVector[i].first << " ";
-        //     cout << endl;
-        //     for (int i = 0; i < cVector.size(); i++)
-        //         cout << cVector[i].second << " ";
+            //  for (auto it = currentCount.begin(); it != currentCount.end(); it++)
+            // {
+            //     cout << " " << 1+it->first << "   " << it->second<< endl;
+            // }
+            for (int i = 0; i < cVector.size(); i++)
+                cout << cVector[i].first << " ";
+            cout << endl;
+            for (int i = 0; i < cVector.size(); i++)
+                cout << cVector[i].second << " ";
 
-        //     cout << endl;
+            cout << endl;
 
-        //     cout << "after" << findNumber << endl;
-        //     //  for (auto it = afterCount.begin(); it != afterCount.end(); it++)
-        //     // {
-        //     //     cout << " " << 1+it->first << "   " << it->second<< endl;
-        //     // }
-        //     sortMapByValue(afterCount, aVector);
-        //     for (int i = 0; i < aVector.size(); i++)
-        //         cout << 1 + aVector[i].first << " ";
-        //     cout << endl;
-        //     for (int i = 0; i < aVector.size(); i++)
-        //         cout << aVector[i].second << " ";
+            cout << "after" << findNumber << endl;
+            //  for (auto it = afterCount.begin(); it != afterCount.end(); it++)
+            // {
+            //     cout << " " << 1+it->first << "   " << it->second<< endl;
+            // }
 
-        //     cout << endl;
-        //     cout << endl;
-        // }
+            for (int i = 0; i < aVector.size(); i++)
+                cout << aVector[i].first << " ";
+            cout << endl;
+            for (int i = 0; i < aVector.size(); i++)
+                cout << aVector[i].second << " ";
+
+            cout << endl;
+            cout << endl;
+        }
 
         for (int idx = 0; idx < TheCount; idx++)
         {
-            if (findNumber == testNumber[idx])
+            if (findNumber == testqi[idx])
             {
                 // cout << " findNumber is " << findNumber << endl;
                 for (int i = 0; i < TheLength; i++)
                 {
-                    allPredict[testNumber[idx]].push_back(aVector[i].first + 1);
-                   //  allPredict[testNumber[idx]].push_back(bVector[i].first + 1);
-                  //  allPredict[testNumber[idx]].push_back(cVector[i].first + 1);
+                    allPredict[testqi[idx]].push_back(aVector[i].first);
+                    //  allPredict[testNumber[idx]].push_back(bVector[i].first + 1);
+                    //  allPredict[testNumber[idx]].push_back(cVector[i].first + 1);
 
                     // cout << " first " << cVector[i].first << "  sedond " << cVector[i].second << endl;
-                   // anotherPredict[cVector[i].first] += cVector[i].second;
+                    // anotherPredict[cVector[i].first] += cVector[i].second;
                     anotherPredict[aVector[i].first] += aVector[i].second;
                     // anotherPredict[bVector[i].first] += bVector[i].second;
                 }
@@ -369,16 +789,18 @@ int main()
         }
     }
 
-    vector<pair<int, int>> dVector;
-    sortMapByValue(predictCount, dVector);
-    for (int i = 0; i < dVector.size(); i++)
-        cout << dVector[i].first << " " << dVector[i].second << " " << endl;
+    for (auto it = predictCount.begin(); it != predictCount.end(); it++)
+    {
+        cout << it->first << " " << it->second << " " << endl;
+    }
+    // vector<pair<int, int>> dVector;
+    // sortMapByValue(predictCount, dVector);
+    // for (int i = 0; i < dVector.size(); i++)
+    //     cout << dVector[i].first << " " << dVector[i].second << " " << endl;
 
     cout << "another predict " << endl;
     for (auto itor = anotherPredict.begin(); itor != anotherPredict.end(); itor++)
     {
-        cout << 1 + itor->first << " " << itor->second << endl;
+        cout << itor->first << " " << itor->second << endl;
     }
-
-    return 0;
 }
