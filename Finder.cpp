@@ -62,6 +62,8 @@ vector<int> getVectorByQiShu(int qishu);
 void testThreeByQishu(int qishu);
 void testThreeWithVector(vector<int> data, int qishu);
 
+///yilou
+void calculateYiLou();
 
 
 int main()
@@ -75,15 +77,15 @@ int main()
 
      geteRelatedNumbers();
 
-  
+  calculateYiLou();
  
  //calculateRelatedNumbers(testqi);
     //{1,2, 19 , 21, 26, 28};
-      vector<int> data = {26, 32, 22, 2 , 7, 12, 14, 17, 20, 9, 27};
-     testThreeWithVector( data, maxQishu);
+      vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
+   // testThreeWithVector( data, maxQishu);
 
   //  calculateDifference(maxQishu);
-  calculateHotCold(maxQishu + 1);
+ // calculateHotCold(maxQishu + 1);
     for (int index = 560; index < maxQishu; index++)
     {
         // testThreeByQishu(index);
@@ -95,7 +97,7 @@ int main()
     // testNumbers(testqi);
 
 // calculateAfterByQishu(testqi);
-//   calculateAfterByQishuAgain(testqi);
+ //  calculateAfterByQishuAgain(testqi);
 
     return 0;
 }
@@ -204,6 +206,48 @@ void calculateDifference(int qishu)
         }
     }
     cout << endl;
+}
+
+void calculateYiLou()
+{
+    
+    map<int, vector<int>> yilouCount;
+     for (int idx = 0; idx < TheMaxNum; idx++)
+    {
+        vector<int> one;
+        one.push_back(0);
+        yilouCount[idx + 1] = one;
+    }
+    for(int index = 0;index < alltargets.size(); index++)
+    {
+        vector<int> one = alltargets[index];
+        for (int idx = 0; idx < TheMaxNum; idx++)
+        {
+            int number = idx +1;
+            bool found = false;
+           for(int count = 0; count < one.size(); count++)
+           {
+            if(one[count] == number)
+            {
+                yilouCount[number].push_back(0);
+                found = true;
+                break;
+            }
+        }
+        if(!found)
+        {
+            yilouCount[number].back() = yilouCount[number].back()+1;
+        }
+    }
+
+    }
+
+   cout << "yilou " << endl;
+   for(auto it = yilouCount.begin(); it != yilouCount.end(); it++){
+cout << "first  " << it->first;
+print_vetor(it->second);
+   }
+
 }
 
 void getAllTargets()
