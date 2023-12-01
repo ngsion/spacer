@@ -16,7 +16,7 @@ using namespace std;
 #define TheW 24
 #define TheH 4
 #define TheCount 6
-#define TheMaxRow 582
+#define TheMaxRow 584
 #define TheMaxNum 33
 #define TheLength 12 ////取前面几个
 #define TheRelatedCount 12
@@ -66,6 +66,8 @@ void testThreeWithVector(vector<int> data, int qishu);
 void calculateYiLou();
 
 
+void testKill(vector<int> testqi);
+
 int main()
 {
 
@@ -77,27 +79,30 @@ int main()
 
      geteRelatedNumbers();
 
-  calculateYiLou();
+ // calculateYiLou();
  
- //calculateRelatedNumbers(testqi);
+   calculateRelatedNumbers(testqi);
     //{1,2, 19 , 21, 26, 28};
-      vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
+   //   vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
    // testThreeWithVector( data, maxQishu);
 
   //  calculateDifference(maxQishu);
- // calculateHotCold(maxQishu + 1);
-    for (int index = 560; index < maxQishu; index++)
+  calculateHotCold(maxQishu + 1);
+  testKill(testqi);
+
+
+    for (int index = 530; index < maxQishu; index++)
     {
         // testThreeByQishu(index);
-      //calculateHotCold(index + 2);
-     //  testRelatedByQishu(index);
+     // calculateHotCold(index + 2);
+     testRelatedByQishu(index);
           // if(index+1 < maxQishu)
           //testRelatedByQishuNext(index);
     }
     // testNumbers(testqi);
-
-// calculateAfterByQishu(testqi);
- //  calculateAfterByQishuAgain(testqi);
+    
+  // calculateAfterByQishu(testqi);
+  // calculateAfterByQishuAgain(testqi);
 
     return 0;
 }
@@ -117,6 +122,32 @@ void sortMapByValue(map<int, int> &tMap, vector<pair<int, int>> &tVector)
         tVector.push_back(make_pair(curr->first, curr->second));
 
     sort(tVector.begin(), tVector.end(), cmp);
+}
+
+void testKill(vector<int> testqi)
+{
+    sort(testqi.begin(),testqi.end());
+    vector<int> killVector;
+    int A = testqi[0];
+    int B = testqi[1];
+    int C = testqi[2];
+    int D = testqi[3];
+    int E = testqi[4];
+    int F = testqi[5];
+    killVector.push_back(A+B+1);
+    killVector.push_back(B-A);
+    killVector.push_back((D+A)%33);
+    killVector.push_back(E-C);
+      killVector.push_back(F-A+1);
+      killVector.push_back(F-C);
+      killVector.push_back(F-B+7);
+      killVector.push_back(D-A);
+      killVector.push_back((int)(A+B+C)/3);
+      killVector.push_back((int)(B+C+D+E)/6);
+
+    cout<<"kill : ";
+    print_vetor(killVector);
+
 }
 
 bool LoadMatrixFileToA(const char *fileName, int column, int row, int A[TheW][TheH])
