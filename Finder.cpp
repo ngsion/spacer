@@ -16,7 +16,7 @@ using namespace std;
 #define TheW 24
 #define TheH 4
 #define TheCount 6
-#define TheMaxRow 584
+#define TheMaxRow 585
 #define TheMaxNum 33
 #define TheLength 12 ////取前面几个
 #define TheRelatedCount 12
@@ -87,7 +87,7 @@ int main()
    // testThreeWithVector( data, maxQishu);
 
   //  calculateDifference(maxQishu);
-  calculateHotCold(maxQishu + 1);
+  calculateHotCold(maxQishu);
   testKill(testqi);
 
 
@@ -95,14 +95,14 @@ int main()
     {
         // testThreeByQishu(index);
      // calculateHotCold(index + 2);
-     testRelatedByQishu(index);
+    // testRelatedByQishu(index);
           // if(index+1 < maxQishu)
           //testRelatedByQishuNext(index);
     }
     // testNumbers(testqi);
     
   // calculateAfterByQishu(testqi);
-  // calculateAfterByQishuAgain(testqi);
+  calculateAfterByQishuAgain(testqi);
 
     return 0;
 }
@@ -597,10 +597,12 @@ void testRelatedByQishuNext(int qishu)
 void calculateHotCold(int qishu)
 {
     cout << "----------calculateHotCold " << qishu << endl;
-    vector<int> oldQi = getVectorByQiShu(qishu - 2);
-    vector<int> lastQi = getVectorByQiShu(qishu - 1);
+    vector<int> oldQi = getVectorByQiShu(qishu - 1);
+    vector<int> lastQi = getVectorByQiShu(qishu);
 
     vector<int> hotresult;
+    vector<int> currentHotresult;
+     vector<int> currentColdresult;
 
     int number = lastQi[0];
     vector<pair<int, int>> dVector = relatedClosePredict[number];
@@ -619,6 +621,7 @@ void calculateHotCold(int qishu)
                 if (testNumber == dVector2[i].first)
                 {
                     isIn = true;
+                    
                     break;
                 }
             }
@@ -632,6 +635,7 @@ void calculateHotCold(int qishu)
         if (found)
         {
 
+currentHotresult.push_back(testNumber);
             for (int idx = 0; idx < TheCount; idx++)
             {
                 int number2 = oldQi[idx];
@@ -661,6 +665,9 @@ void calculateHotCold(int qishu)
     cout << "HotCode:  ";
     print_vetor(hotresult);
 
+    cout << "CurrentHotCode:  ";
+    print_vetor(currentHotresult);
+
     vector<int> coldresult;
 
     number = lastQi[0];
@@ -680,6 +687,7 @@ void calculateHotCold(int qishu)
                 if (testNumber == dVector2[i].first)
                 {
                     isIn = true;
+                   
                     break;
                 }
             }
@@ -693,6 +701,7 @@ void calculateHotCold(int qishu)
         if (found)
         {
 
+ currentColdresult.push_back(testNumber);
             for (int idx = 0; idx < TheCount; idx++)
             {
                 int number2 = oldQi[idx];
@@ -720,9 +729,14 @@ void calculateHotCold(int qishu)
         }
     }
 
+
     cout << "ColdCode:  ";
     print_vetor(coldresult);
 
+  cout << "CurrentColdCode:  ";
+    print_vetor(currentColdresult);
+
+      
     getVectorByQiShu(qishu);
     cout << "----------calculateHotCold end " << qishu << endl;
 }
