@@ -68,7 +68,9 @@ static ofstream outFile;
 /// yilou
 void calculateYiLou();
 
-void testKill(vector<int> testqi);
+void testKill(int qishu);
+
+void doubleKill(int qishu);
 
 int main()
 {
@@ -79,7 +81,7 @@ int main()
 
     outFile.open(filename);
 
-   // for (maxrowcount = 100; maxrowcount < 500; maxrowcount++)
+    // for (maxrowcount = 100; maxrowcount < 500; maxrowcount++)
     {
 
         int maxQishu = maxrowcount - 1;
@@ -92,27 +94,31 @@ int main()
 
         // calculateYiLou();
 
-         calculateRelatedNumbers(testqi);
+        // calculateRelatedNumbers(testqi);
         //{1,2, 19 , 21, 26, 28};
         //    vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
         //  testThreeWithVector( data, maxQishu);
 
         //  calculateDifference(maxQishu);
-         calculateHotCold(maxQishu);
-         testKill(testqi);
+        //   calculateHotCold(maxQishu);
+         //testKill(maxQishu);
 
-        for (int index = maxQishu - 30; index < maxQishu; index++)
+       // doubleKill(maxQishu);
+
+        for (int index = maxQishu - 100; index < maxQishu; index++)
         {
+           // testKill(index);
+             doubleKill(index);
             // testThreeByQishu(index);
-           //  calculateHotCold(index);
-        //    testRelatedByQishu(index);
+            //  calculateHotCold(index);
+            //    testRelatedByQishu(index);
             // if(index+1 < maxQishu)
             // testRelatedByQishuNext(index);
         }
         // testNumbers(testqi);
 
         // calculateAfterByQishu(testqi);
-         calculateAfterByQishuAgain(testqi);
+        //  calculateAfterByQishuAgain(testqi);
     }
 
     outFile.close();
@@ -137,8 +143,9 @@ void sortMapByValue(map<int, int> &tMap, vector<pair<int, int>> &tVector)
     sort(tVector.begin(), tVector.end(), cmp);
 }
 
-void testKill(vector<int> testqi)
+void testKill(int qishu)
 {
+    vector<int> testqi = getVectorByQiShu(qishu);
     sort(testqi.begin(), testqi.end());
     vector<int> killVector;
     int A = testqi[0];
@@ -158,8 +165,82 @@ void testKill(vector<int> testqi)
     killVector.push_back((int)(A + B + C) / 3);
     killVector.push_back((int)(B + C + D + E) / 6);
 
-    cout << "kill : ";
+    sort(killVector.begin(), killVector.end());
+    killVector.erase(unique(killVector.begin(), killVector.end()), killVector.end());
+
+    for (auto it = killVector.begin(); it != killVector.end(); it++)
+    {
+        if (*it == 0)
+        {
+            *it = 33;
+            break;
+        }
+    }
+    sort(killVector.begin(), killVector.end());
+
+    cout << "testKill : ";
     print_vetor(killVector);
+
+    if (qishu < maxrowcount)
+    {
+        vector<int> nextqi = getVectorByQiShu(qishu + 1);
+        vector<int> array = vector_intersection(killVector, nextqi);
+         if (array.size() == 3 || array.size() == 1 || array.size() == 2)
+        {
+            cout << "testKill  ok " << qishu << endl;
+        }
+        else
+        {
+            cout << "testKill  failed " << qishu << endl;
+        }
+    }
+}
+
+void doubleKill(int qishu)
+{
+    vector<int> testqi = getVectorByQiShu(qishu);
+    sort(testqi.begin(), testqi.end());
+    vector<int> killVector;
+
+    for (int index = 0; index < testqi.size(); index++)
+    {
+        int A = testqi[index];
+        killVector.push_back((2 * A) % 33);
+        killVector.push_back((3 * A) % 33);
+        killVector.push_back((4 * A) % 33);
+        killVector.push_back((5 * A) % 33);
+    }
+
+    sort(killVector.begin(), killVector.end());
+    killVector.erase(unique(killVector.begin(), killVector.end()), killVector.end());
+
+    for (auto it = killVector.begin(); it != killVector.end(); it++)
+    {
+        if (*it == 0)
+        {
+            *it = 33;
+            break;
+        }
+    }
+    sort(killVector.begin(), killVector.end());
+
+    cout << "double kill ";
+    print_vetor(killVector);
+
+    if (qishu < maxrowcount)
+    {
+        vector<int> nextqi = getVectorByQiShu(qishu + 1);
+        vector<int> array = vector_intersection(killVector, nextqi);
+        if (array.size() == 3 || array.size() == 4 || array.size() == 2)
+        {
+            cout << "double kill ok " << qishu << endl;
+           
+        }
+        else
+        {
+             cout << "double kill failed " << qishu << endl;
+        }
+    }
 }
 
 bool LoadMatrixFileToA(const char *fileName, int column, int row, int A[TheW][TheH])
@@ -264,6 +345,7 @@ void calculateYiLou()
     for (int index = 0; index < alltargets.size(); index++)
     {
         vector<int> one = alltargets[index];
+        vector<int> yilouzhiforonetarget;
         for (int idx = 0; idx < TheMaxNum; idx++)
         {
             int number = idx + 1;
@@ -272,6 +354,7 @@ void calculateYiLou()
             {
                 if (one[count] == number)
                 {
+                    yilouzhiforonetarget.push_back(yilouCount[number].back());
                     yilouCount[number].push_back(0);
                     found = true;
                     break;
@@ -282,14 +365,45 @@ void calculateYiLou()
                 yilouCount[number].back() = yilouCount[number].back() + 1;
             }
         }
+
+        int sum = 0;
+        for (auto it = yilouzhiforonetarget.begin(); it != yilouzhiforonetarget.end(); it++)
+        {
+            sum += *it;
+        }
+        cout << "yilouzhi " << index << " sum: " << sum << endl;
+        // sort(yilouzhiforonetarget.begin(),yilouzhiforonetarget.end());
+        print_vetor(yilouzhiforonetarget);
+        sort(one.begin(), one.end());
+        print_vetor(one);
     }
 
     cout << "yilou " << endl;
+    map<int, int> yilouMap;
     for (auto it = yilouCount.begin(); it != yilouCount.end(); it++)
     {
         cout << "first  " << it->first;
         print_vetor(it->second);
+
+        for (auto itor = it->second.begin(); itor != it->second.end(); itor++)
+        {
+
+            if (yilouMap.find(*itor) == yilouMap.end())
+            {
+                yilouMap[*itor] = 0;
+            }
+            yilouMap[*itor] = yilouMap[*itor] + 1;
+        }
     }
+    vector<pair<int, int>> dVector;
+    sortMapByValue(yilouMap, dVector);
+    for (int i = 0; i < dVector.size(); i++)
+    {
+        cout << dVector[i].first << ": ";
+        cout << dVector[i].second;
+        cout << endl;
+    }
+    cout << endl;
 }
 
 void getAllTargets()
@@ -756,7 +870,7 @@ void calculateHotCold(int qishu)
             cout << "-----gooood find " << qishu << " :  "
                  << "   " << maxrowcount << endl;
         }
-         if (contain(currentColdresult, future))
+        if (contain(currentColdresult, future))
         {
             cout << "-----gooood find  22" << qishu << " :  "
                  << "   " << maxrowcount << endl;
