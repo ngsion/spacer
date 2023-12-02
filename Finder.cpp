@@ -16,11 +16,13 @@ using namespace std;
 #define TheW 24
 #define TheH 4
 #define TheCount 6
-#define TheMaxRow 585
+#define TheMaxRow 3082
 #define TheMaxNum 33
 #define TheLength 12 ////取前面几个
 #define TheRelatedCount 12
 #define TheTestInCount 24 /// 判断下一期是否在当前数字的Related序列中,此值小于等于 33
+
+static int maxrowcount = 471;
 
 static int target[TheCount][TheMaxRow];
 static vector<vector<int>> alltargets;
@@ -51,7 +53,7 @@ void calculateHotCold(int qishu);
 void calculateAfterByQishu(vector<int> testqi);
 
 /// @brief 另一种计算方式，取两个数字后面一期6个数字
- void calculateAfterByQishuAgain(vector<int> testqi);
+void calculateAfterByQishuAgain(vector<int> testqi);
 
 /// @brief 获取当期序列
 /// @return
@@ -62,47 +64,58 @@ vector<int> getVectorByQiShu(int qishu);
 void testThreeByQishu(int qishu);
 void testThreeWithVector(vector<int> data, int qishu);
 
-///yilou
+static ofstream outFile;
+/// yilou
 void calculateYiLou();
-
 
 void testKill(vector<int> testqi);
 
 int main()
 {
 
-    int maxQishu = TheMaxRow - 1;
+    char filename[64] = {0};
 
-    getAllTargets();
+    sprintf(filename, "results");
 
-    vector<int> testqi = getVectorByQiShu(maxQishu);
+    outFile.open(filename);
 
-     geteRelatedNumbers();
-
- // calculateYiLou();
- 
-   calculateRelatedNumbers(testqi);
-    //{1,2, 19 , 21, 26, 28};
-   //   vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
-   // testThreeWithVector( data, maxQishu);
-
-  //  calculateDifference(maxQishu);
-  calculateHotCold(maxQishu);
-  testKill(testqi);
-
-
-    for (int index = 530; index < maxQishu; index++)
+   // for (maxrowcount = 100; maxrowcount < 500; maxrowcount++)
     {
-        // testThreeByQishu(index);
-     // calculateHotCold(index + 2);
-    // testRelatedByQishu(index);
-          // if(index+1 < maxQishu)
-          //testRelatedByQishuNext(index);
+
+        int maxQishu = maxrowcount - 1;
+
+        getAllTargets();
+
+        vector<int> testqi = getVectorByQiShu(maxQishu);
+
+        geteRelatedNumbers();
+
+        // calculateYiLou();
+
+         calculateRelatedNumbers(testqi);
+        //{1,2, 19 , 21, 26, 28};
+        //    vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
+        //  testThreeWithVector( data, maxQishu);
+
+        //  calculateDifference(maxQishu);
+         calculateHotCold(maxQishu);
+         testKill(testqi);
+
+        for (int index = maxQishu - 30; index < maxQishu; index++)
+        {
+            // testThreeByQishu(index);
+           //  calculateHotCold(index);
+        //    testRelatedByQishu(index);
+            // if(index+1 < maxQishu)
+            // testRelatedByQishuNext(index);
+        }
+        // testNumbers(testqi);
+
+        // calculateAfterByQishu(testqi);
+         calculateAfterByQishuAgain(testqi);
     }
-    // testNumbers(testqi);
-    
-  // calculateAfterByQishu(testqi);
-  calculateAfterByQishuAgain(testqi);
+
+    outFile.close();
 
     return 0;
 }
@@ -126,7 +139,7 @@ void sortMapByValue(map<int, int> &tMap, vector<pair<int, int>> &tVector)
 
 void testKill(vector<int> testqi)
 {
-    sort(testqi.begin(),testqi.end());
+    sort(testqi.begin(), testqi.end());
     vector<int> killVector;
     int A = testqi[0];
     int B = testqi[1];
@@ -134,20 +147,19 @@ void testKill(vector<int> testqi)
     int D = testqi[3];
     int E = testqi[4];
     int F = testqi[5];
-    killVector.push_back(A+B+1);
-    killVector.push_back(B-A);
-    killVector.push_back((D+A)%33);
-    killVector.push_back(E-C);
-      killVector.push_back(F-A+1);
-      killVector.push_back(F-C);
-      killVector.push_back(F-B+7);
-      killVector.push_back(D-A);
-      killVector.push_back((int)(A+B+C)/3);
-      killVector.push_back((int)(B+C+D+E)/6);
+    killVector.push_back(A + B + 1);
+    killVector.push_back(B - A);
+    killVector.push_back((D + A) % 33);
+    killVector.push_back(E - C);
+    killVector.push_back(F - A + 1);
+    killVector.push_back(F - C);
+    killVector.push_back(F - B + 7);
+    killVector.push_back(D - A);
+    killVector.push_back((int)(A + B + C) / 3);
+    killVector.push_back((int)(B + C + D + E) / 6);
 
-    cout<<"kill : ";
+    cout << "kill : ";
     print_vetor(killVector);
-
 }
 
 bool LoadMatrixFileToA(const char *fileName, int column, int row, int A[TheW][TheH])
@@ -241,48 +253,48 @@ void calculateDifference(int qishu)
 
 void calculateYiLou()
 {
-    
+
     map<int, vector<int>> yilouCount;
-     for (int idx = 0; idx < TheMaxNum; idx++)
+    for (int idx = 0; idx < TheMaxNum; idx++)
     {
         vector<int> one;
         one.push_back(0);
         yilouCount[idx + 1] = one;
     }
-    for(int index = 0;index < alltargets.size(); index++)
+    for (int index = 0; index < alltargets.size(); index++)
     {
         vector<int> one = alltargets[index];
         for (int idx = 0; idx < TheMaxNum; idx++)
         {
-            int number = idx +1;
+            int number = idx + 1;
             bool found = false;
-           for(int count = 0; count < one.size(); count++)
-           {
-            if(one[count] == number)
+            for (int count = 0; count < one.size(); count++)
             {
-                yilouCount[number].push_back(0);
-                found = true;
-                break;
+                if (one[count] == number)
+                {
+                    yilouCount[number].push_back(0);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                yilouCount[number].back() = yilouCount[number].back() + 1;
             }
         }
-        if(!found)
-        {
-            yilouCount[number].back() = yilouCount[number].back()+1;
-        }
     }
 
+    cout << "yilou " << endl;
+    for (auto it = yilouCount.begin(); it != yilouCount.end(); it++)
+    {
+        cout << "first  " << it->first;
+        print_vetor(it->second);
     }
-
-   cout << "yilou " << endl;
-   for(auto it = yilouCount.begin(); it != yilouCount.end(); it++){
-cout << "first  " << it->first;
-print_vetor(it->second);
-   }
-
 }
 
 void getAllTargets()
 {
+    alltargets.clear();
     char filename[64] = {0};
     sprintf(filename, "targets.txt");
     if (isFileExists_fopen(filename))
@@ -290,7 +302,7 @@ void getAllTargets()
         LoadMatrixFileToT(filename, TheCount, TheMaxRow, target);
     }
 
-    for (int row = 0; row < TheMaxRow; row++)
+    for (int row = TheMaxRow - maxrowcount; row < TheMaxRow; row++)
     {
 
         vector<int> onetarget;
@@ -303,7 +315,7 @@ void getAllTargets()
 
         alltargets.push_back(onetarget);
     }
-    cout << "alltargets size "<< alltargets.size() <<"    the last one is " ;
+    cout << "alltargets size " << alltargets.size() << "    the last one is ";
     print_vetor(alltargets.back());
 }
 
@@ -602,7 +614,7 @@ void calculateHotCold(int qishu)
 
     vector<int> hotresult;
     vector<int> currentHotresult;
-     vector<int> currentColdresult;
+    vector<int> currentColdresult;
 
     int number = lastQi[0];
     vector<pair<int, int>> dVector = relatedClosePredict[number];
@@ -621,7 +633,7 @@ void calculateHotCold(int qishu)
                 if (testNumber == dVector2[i].first)
                 {
                     isIn = true;
-                    
+
                     break;
                 }
             }
@@ -635,7 +647,7 @@ void calculateHotCold(int qishu)
         if (found)
         {
 
-currentHotresult.push_back(testNumber);
+            currentHotresult.push_back(testNumber);
             for (int idx = 0; idx < TheCount; idx++)
             {
                 int number2 = oldQi[idx];
@@ -687,7 +699,7 @@ currentHotresult.push_back(testNumber);
                 if (testNumber == dVector2[i].first)
                 {
                     isIn = true;
-                   
+
                     break;
                 }
             }
@@ -701,7 +713,7 @@ currentHotresult.push_back(testNumber);
         if (found)
         {
 
- currentColdresult.push_back(testNumber);
+            currentColdresult.push_back(testNumber);
             for (int idx = 0; idx < TheCount; idx++)
             {
                 int number2 = oldQi[idx];
@@ -729,23 +741,35 @@ currentHotresult.push_back(testNumber);
         }
     }
 
-
     cout << "ColdCode:  ";
     print_vetor(coldresult);
 
-  cout << "CurrentColdCode:  ";
+    cout << "CurrentColdCode:  ";
     print_vetor(currentColdresult);
 
-      
+    if (qishu + 1 < maxrowcount)
+    {
+        vector<int> future = getVectorByQiShu(qishu + 1);
+
+        if (contain(currentHotresult, future))
+        {
+            cout << "-----gooood find " << qishu << " :  "
+                 << "   " << maxrowcount << endl;
+        }
+         if (contain(currentColdresult, future))
+        {
+            cout << "-----gooood find  22" << qishu << " :  "
+                 << "   " << maxrowcount << endl;
+        }
+    }
+
     getVectorByQiShu(qishu);
     cout << "----------calculateHotCold end " << qishu << endl;
 }
 
-
-
-
 void geteRelatedNumbers()
 {
+    relatedClosePredict.clear();
 
     vector<int> allNumbers;
     for (int idx = 0; idx < alltargets.size(); idx++)
@@ -767,7 +791,7 @@ void geteRelatedNumbers()
 
         int number = allNumbers[idx];
 
-        for (int pos = idx + 1, count = TheRelatedCount; pos<maxnumbers, count> 0; pos++, count--)
+        for (int pos = idx + 1, count = TheRelatedCount; pos < maxnumbers, count > 0; pos++, count--)
         {
             if (pos >= maxnumbers - 1)
             {
@@ -900,18 +924,18 @@ void calculateRelatedNumbers(vector<int> testqi)
         }
     }
 
-   vector<pair<int, int>> pVector;
-     sortMapByValue(predictCount, pVector);
+    vector<pair<int, int>> pVector;
+    sortMapByValue(predictCount, pVector);
     for (int i = 0; i < pVector.size(); i++)
         cout << pVector[i].first << " ";
     cout << endl;
     for (int i = 0; i < pVector.size(); i++)
     {
-        if (pVector[i].first > 10 ) cout<<" ";
+        if (pVector[i].first > 10)
+            cout << " ";
         cout << pVector[i].second << " ";
-        
     }
- cout << endl;
+    cout << endl;
     // for (auto it = predictCount.begin(); it != predictCount.end(); it++)
     // {
     //     cout << it->first << " " << it->second << " " << endl;
@@ -928,101 +952,89 @@ void calculateRelatedNumbers(vector<int> testqi)
     // }
     vector<pair<int, int>> anVector;
     sortMapByValue(anotherPredict, anVector);
-     for (int i = 0; i < anVector.size(); i++)
+    for (int i = 0; i < anVector.size(); i++)
         cout << anVector[i].first << " ";
     cout << endl;
     for (int i = 0; i < anVector.size(); i++)
     {
-        if (anVector[i].first > 10 ) cout<<" ";
+        if (anVector[i].first > 10)
+            cout << " ";
         cout << anVector[i].second << " ";
-        
     }
     // for (int i = 0; i < anVector.size(); i++)
     //     cout << anVector[i].first << " " << anVector[i].second << " " << endl;
 }
 
-
-
- void calculateAfterByQishuAgain2(vector<int> testqi2)
+void calculateAfterByQishuAgain2(vector<int> testqi2)
 {
 
-     vector<int> testqi = testqi2;
-  //  sort(testqi.begin(),testqi.end());
-  cout << "after compose: " <<endl;
-   for( int index = 0; index < testqi.size()-1; index++ )
-   {
-     //for( int idx = index+1; idx < testqi.size(); idx++ ){
-      int idx = index+1;
-
-      int number1 = testqi[index];
-      int number2 = testqi[idx];
-
-      vector<int> oneCompose;
-       
-      oneCompose.push_back(number1);
-      oneCompose.push_back(number2);
-
-      map<int, int> afterCount;
-       for (int idx = 0; idx < TheMaxNum; idx++)
+    vector<int> testqi = testqi2;
+    //  sort(testqi.begin(),testqi.end());
+    cout << "after compose: " << endl;
+    for (int index = 0; index < testqi.size() - 1; index++)
     {
-        afterCount[idx + 1] = 0;
-    }
-  
+        // for( int idx = index+1; idx < testqi.size(); idx++ ){
+        int idx = index + 1;
 
-  for (int idx = 0; idx < alltargets.size()-1; idx++)
+        int number1 = testqi[index];
+        int number2 = testqi[idx];
+
+        vector<int> oneCompose;
+
+        oneCompose.push_back(number1);
+        oneCompose.push_back(number2);
+
+        map<int, int> afterCount;
+        for (int idx = 0; idx < TheMaxNum; idx++)
         {
-            vector<int> onetarget = alltargets[idx];
-           
-            if (contain(onetarget,oneCompose))
-            {
-                
-     
-                vector<int> nexttarget = alltargets[idx+1];
-             //   print_vetor(onetarget);
-              //  print_vetor(nexttarget);
-                 for (int count = 0; count < nexttarget.size(); count++)
-                    {
-                        ++afterCount[nexttarget[count]];
-                         
-                    }
-
-            }
-
+            afterCount[idx + 1] = 0;
         }
 
-       
-       print_vetor(oneCompose);
+        for (int idx = 0; idx < alltargets.size() - 1; idx++)
+        {
+            vector<int> onetarget = alltargets[idx];
 
-    vector<pair<int, int>> aVector;
-    sortMapByValue(afterCount, aVector);
-    for (int i = 0; i < aVector.size(); i++)
-        cout << aVector[i].first << " ";
-    cout << endl;
-    for (int i = 0; i < aVector.size(); i++)
-    {
-        if (aVector[i].first > 10 ) cout<<" ";
-        cout << aVector[i].second << " ";
-        
+            if (contain(onetarget, oneCompose))
+            {
+
+                vector<int> nexttarget = alltargets[idx + 1];
+                //   print_vetor(onetarget);
+                //  print_vetor(nexttarget);
+                for (int count = 0; count < nexttarget.size(); count++)
+                {
+                    ++afterCount[nexttarget[count]];
+                }
+            }
+        }
+
+        print_vetor(oneCompose);
+
+        vector<pair<int, int>> aVector;
+        sortMapByValue(afterCount, aVector);
+        for (int i = 0; i < aVector.size(); i++)
+            cout << aVector[i].first << " ";
+        cout << endl;
+        for (int i = 0; i < aVector.size(); i++)
+        {
+            if (aVector[i].first > 10)
+                cout << " ";
+            cout << aVector[i].second << " ";
+        }
+        cout << endl;
+
+        // }
     }
-   cout <<endl;
-
-
-  // }
-   }
-
-
 }
 
- void calculateAfterByQishuAgain(vector<int> testqi2)
- {
+void calculateAfterByQishuAgain(vector<int> testqi2)
+{
     print_vetor(testqi2);
     vector<int> testqi = testqi2;
     calculateAfterByQishuAgain2(testqi);
-    cout<<"order again " <<endl;
-    sort(testqi.begin(),testqi.end());
-     calculateAfterByQishuAgain2(testqi);
-
- }
+    cout << "order again " << endl;
+    sort(testqi.begin(), testqi.end());
+    calculateAfterByQishuAgain2(testqi);
+}
 void calculateAfterByQishu(vector<int> testqi)
 {
     map<int, int> beforeCount;
@@ -1030,7 +1042,7 @@ void calculateAfterByQishu(vector<int> testqi)
     map<int, int> afterCount;
 
     map<int, int> repeatCount;
-     map<int, int> tripleCount;
+    map<int, int> tripleCount;
     ////////////////////////////////////////
     cout << "test alltargets.size() " << alltargets.size() << endl;
 
@@ -1063,7 +1075,6 @@ void calculateAfterByQishu(vector<int> testqi)
             beforeCount[idx + 1] = 0;
             currentCount[idx + 1] = 0;
             afterCount[idx + 1] = 0;
-            
         }
 
         for (int idx = 0; idx < alltargets.size(); idx++)
@@ -1079,19 +1090,19 @@ void calculateAfterByQishu(vector<int> testqi)
                         ++currentCount[onetarget[count]];
                     }
 
-
-                   bool foundBefore = false;
+                    bool foundBefore = false;
                     if (idx >= 1 && idx < alltargets.size())
                     {
                         vector<int> beforetarget = alltargets[idx - 1];
                         for (int count = 0; count < beforetarget.size(); count++)
                         {
-                
+
                             ++beforeCount[beforetarget[count]];
 
-                            if (beforetarget[count] == findNumber){
-                             foundBefore = true;
-                           }
+                            if (beforetarget[count] == findNumber)
+                            {
+                                foundBefore = true;
+                            }
                         }
                     }
 
@@ -1102,14 +1113,15 @@ void calculateAfterByQishu(vector<int> testqi)
                         {
                             ++afterCount[aftertarget[count]];
 
-                           if (aftertarget[count] == findNumber){
-                             ++repeatCount[findNumber];
+                            if (aftertarget[count] == findNumber)
+                            {
+                                ++repeatCount[findNumber];
 
-                             if (foundBefore){
-                                 ++tripleCount[findNumber];
-                             }
-                           }
-
+                                if (foundBefore)
+                                {
+                                    ++tripleCount[findNumber];
+                                }
+                            }
                         }
                     }
                     break;
@@ -1211,8 +1223,7 @@ void calculateAfterByQishu(vector<int> testqi)
         cVector.clear();
     }
 
-
-    cout << "repeatCount is: " ;
+    cout << "repeatCount is: ";
     vector<pair<int, int>> rVector;
     sortMapByValue(repeatCount, rVector);
     for (int i = 0; i < rVector.size(); i++)
@@ -1220,13 +1231,13 @@ void calculateAfterByQishu(vector<int> testqi)
     cout << endl;
     for (int i = 0; i < rVector.size(); i++)
     {
-        if (rVector[i].first > 10 ) cout<<" ";
+        if (rVector[i].first > 10)
+            cout << " ";
         cout << rVector[i].second << " ";
-        
     }
-    cout <<endl;
+    cout << endl;
 
- cout << "tripleCount is: " ;
+    cout << "tripleCount is: ";
     vector<pair<int, int>> triVector;
     sortMapByValue(tripleCount, triVector);
     for (int i = 0; i < triVector.size(); i++)
@@ -1234,12 +1245,11 @@ void calculateAfterByQishu(vector<int> testqi)
     cout << endl;
     for (int i = 0; i < triVector.size(); i++)
     {
-        if (triVector[i].first > 10 ) cout<<" ";
+        if (triVector[i].first > 10)
+            cout << " ";
         cout << triVector[i].second << " ";
-        
     }
-    cout <<endl;
-
+    cout << endl;
 
     map<int, int> beforeorders;
     for (auto it = beforemap.begin(); it != beforemap.end(); it++)
@@ -1256,9 +1266,9 @@ void calculateAfterByQishu(vector<int> testqi)
     cout << endl;
     for (int i = 0; i < tVector.size(); i++)
     {
-        if (tVector[i].first > 10 ) cout<<" ";
+        if (tVector[i].first > 10)
+            cout << " ";
         cout << tVector[i].second << " ";
-        
     }
 
     cout << endl;
@@ -1279,22 +1289,22 @@ void calculateAfterByQishu(vector<int> testqi)
             predictCount[value] = predictCount[value] + 1;
         }
     }
- vector<pair<int, int>> pVector;
+    vector<pair<int, int>> pVector;
     sortMapByValue(predictCount, pVector);
     // for (auto it = predictCount.begin(); it != predictCount.end(); it++)
     // {
     //     cout << it->first << " " << it->second << " " << endl;
     // }
-      for (int i = 0; i < pVector.size(); i++)
+    for (int i = 0; i < pVector.size(); i++)
         cout << pVector[i].first << " ";
     cout << endl;
     for (int i = 0; i < pVector.size(); i++)
     {
-        if (pVector[i].first > 10 ) cout<<" ";
+        if (pVector[i].first > 10)
+            cout << " ";
         cout << pVector[i].second << " ";
-        
     }
-     cout << endl;
+    cout << endl;
     // vector<pair<int, int>> dVector;
     // sortMapByValue(predictCount, dVector);
     // for (int i = 0; i < dVector.size(); i++)
@@ -1309,13 +1319,13 @@ void calculateAfterByQishu(vector<int> testqi)
     sortMapByValue(anotherPredict, anVector);
     // for (int i = 0; i < anVector.size(); i++)
     //     cout << anVector[i].first << " " << anVector[i].second << " " << endl;
-     for (int i = 0; i < anVector.size(); i++)
+    for (int i = 0; i < anVector.size(); i++)
         cout << anVector[i].first << " ";
     cout << endl;
     for (int i = 0; i < anVector.size(); i++)
     {
-        if (anVector[i].first > 10 ) cout<<" ";
+        if (anVector[i].first > 10)
+            cout << " ";
         cout << anVector[i].second << " ";
-        
     }
 }
