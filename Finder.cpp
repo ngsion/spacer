@@ -16,7 +16,7 @@ using namespace std;
 #define TheW 24
 #define TheH 4
 #define TheCount 6
-#define TheMaxRow 3082
+#define TheMaxRow 3081
 #define TheMaxNum 33
 #define TheLength 12 ////取前面几个
 #define TheRelatedCount 12
@@ -49,6 +49,8 @@ void calculateDifference(int qishu);
 /// @brief 计算前两期的冷热码
 void calculateHotCold(int qishu);
 
+void calculateWarm(int qishu);
+
 /// @brief 另一种计算方式，单个数字后面的一期6个数字
 void calculateAfterByQishu(vector<int> testqi);
 
@@ -72,6 +74,23 @@ void testKill(int qishu);
 
 void doubleKill(int qishu);
 
+void print_vetor2(vector<int> v)
+{
+    if (v.size() > 0)
+    {
+        cout << "{ ";
+        for (int i = 0; i < int(v.size()); i++)
+        {
+            cout << v[i] << ",";
+        }
+        cout << " }\n";
+    }
+    else
+    {
+        cout << "{}\n";
+    }
+}
+
 int main()
 {
 
@@ -92,33 +111,36 @@ int main()
 
         geteRelatedNumbers();
 
-        // calculateYiLou();
+        //  calculateYiLou();
 
         // calculateRelatedNumbers(testqi);
         //{1,2, 19 , 21, 26, 28};
         //    vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
         //  testThreeWithVector( data, maxQishu);
 
-        //  calculateDifference(maxQishu);
-        //   calculateHotCold(maxQishu);
-         //testKill(maxQishu);
+        // calculateDifference(maxQishu);
+        // calculateHotCold(maxQishu);
+        //  testKill(maxQishu);
 
-       // doubleKill(maxQishu);
+        // doubleKill(maxQishu);
 
-        for (int index = maxQishu - 100; index < maxQishu; index++)
+        //  calculateWarm(maxQishu);
+
+        for (int index = maxQishu - 50; index < maxQishu; index++)
         {
-           // testKill(index);
-             doubleKill(index);
+           // calculateWarm(index);
+            //   testKill(index);
+            // doubleKill(index);
             // testThreeByQishu(index);
             //  calculateHotCold(index);
-            //    testRelatedByQishu(index);
+            //  testRelatedByQishu(index);
             // if(index+1 < maxQishu)
             // testRelatedByQishuNext(index);
         }
         // testNumbers(testqi);
 
-        // calculateAfterByQishu(testqi);
-        //  calculateAfterByQishuAgain(testqi);
+       //  calculateAfterByQishu(testqi);
+          calculateAfterByQishuAgain(testqi);
     }
 
     outFile.close();
@@ -185,7 +207,7 @@ void testKill(int qishu)
     {
         vector<int> nextqi = getVectorByQiShu(qishu + 1);
         vector<int> array = vector_intersection(killVector, nextqi);
-         if (array.size() == 3 || array.size() == 1 || array.size() == 2)
+        if (array.size() == 3 || array.size() == 1 || array.size() == 2)
         {
             cout << "testKill  ok " << qishu << endl;
         }
@@ -234,11 +256,10 @@ void doubleKill(int qishu)
         if (array.size() == 3 || array.size() == 4 || array.size() == 2)
         {
             cout << "double kill ok " << qishu << endl;
-           
         }
         else
         {
-             cout << "double kill failed " << qishu << endl;
+            cout << "double kill failed " << qishu << endl;
         }
     }
 }
@@ -372,18 +393,18 @@ void calculateYiLou()
             sum += *it;
         }
         cout << "yilouzhi " << index << " sum: " << sum << endl;
-        // sort(yilouzhiforonetarget.begin(),yilouzhiforonetarget.end());
-        print_vetor(yilouzhiforonetarget);
+        sort(yilouzhiforonetarget.begin(), yilouzhiforonetarget.end());
+        print_vetor2(yilouzhiforonetarget);
         sort(one.begin(), one.end());
-        print_vetor(one);
+        print_vetor2(one);
     }
 
     cout << "yilou " << endl;
     map<int, int> yilouMap;
     for (auto it = yilouCount.begin(); it != yilouCount.end(); it++)
     {
-        cout << "first  " << it->first;
-        print_vetor(it->second);
+        cout << "first  " << it->first << " :  " << it->second.back() << endl;
+        // print_vetor(it->second);
 
         for (auto itor = it->second.begin(); itor != it->second.end(); itor++)
         {
@@ -716,6 +737,58 @@ void testRelatedByQishuNext(int qishu)
         {
             cout << " test qishu " << qishu << "  foundAll 0 "
                  << " at " << index << " number is " << number << " foundCount is " << foundCount << " TheTestInCount is " << TheTestInCount << endl;
+        }
+    }
+}
+
+void calculateWarm(int qishu)
+{
+    cout << "----------calculateWarm " << qishu << endl;
+
+    vector<int> lastQi = getVectorByQiShu(qishu);
+
+    map<int, int> warmMap;
+    for (int idx = 0; idx < TheMaxNum; idx++)
+    {
+
+        warmMap[idx + 1] = 0;
+    }
+
+    for (int idx = 0; idx < lastQi.size(); idx++)
+    {
+        int number = lastQi[idx];
+        vector<pair<int, int>> dVector = relatedClosePredict[number];
+        for (int index = 0; index < 24; index++)
+        {
+            int testNumber = dVector[index].first;
+            warmMap[testNumber] = warmMap[testNumber] + 1;
+        }
+    }
+
+   print_map(warmMap);
+    vector<int> warmVector;
+    for (auto it = warmMap.begin(); it != warmMap.end(); it++)
+    {
+
+        if (it->second == 5)
+        {
+            warmVector.push_back(it->first);
+        }
+    }
+    print_vetor(warmVector);
+
+    if (qishu + 1 < maxrowcount)
+    {
+        vector<int> future = getVectorByQiShu(qishu + 1);
+
+        vector<int> array = vector_intersection(warmVector, future);
+        if (array.size() > 3)
+        {
+            cout << "calculateWarm  ok " << qishu << endl;
+        }
+        else
+        {
+            cout << "calculateWarm  failed " << qishu << endl;
         }
     }
 }
