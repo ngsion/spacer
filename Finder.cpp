@@ -16,7 +16,7 @@ using namespace std;
 #define TheW 24
 #define TheH 4
 #define TheCount 6
-#define TheMaxRow 3081
+#define TheMaxRow 3084
 #define TheMaxNum 33
 #define TheLength 12 ////取前面几个
 #define TheRelatedCount 12
@@ -111,9 +111,9 @@ int main()
 
         geteRelatedNumbers();
 
-        //  calculateYiLou();
+         // calculateYiLou();
 
-        // calculateRelatedNumbers(testqi);
+         calculateRelatedNumbers(testqi);
         //{1,2, 19 , 21, 26, 28};
         //    vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
         //  testThreeWithVector( data, maxQishu);
@@ -139,8 +139,8 @@ int main()
         }
         // testNumbers(testqi);
 
-       //  calculateAfterByQishu(testqi);
-          calculateAfterByQishuAgain(testqi);
+        // calculateAfterByQishu(testqi);
+         calculateAfterByQishuAgain(testqi);
     }
 
     outFile.close();
@@ -392,11 +392,11 @@ void calculateYiLou()
         {
             sum += *it;
         }
-        cout << "yilouzhi " << index << " sum: " << sum << endl;
+      //  cout << "yilouzhi " << index << " sum: " << sum << endl;
         sort(yilouzhiforonetarget.begin(), yilouzhiforonetarget.end());
-        print_vetor2(yilouzhiforonetarget);
+      //  print_vetor2(yilouzhiforonetarget);
         sort(one.begin(), one.end());
-        print_vetor2(one);
+       // print_vetor2(one);
     }
 
     cout << "yilou " << endl;
@@ -404,7 +404,7 @@ void calculateYiLou()
     for (auto it = yilouCount.begin(); it != yilouCount.end(); it++)
     {
         cout << "first  " << it->first << " :  " << it->second.back() << endl;
-        // print_vetor(it->second);
+         print_vetor(it->second);
 
         for (auto itor = it->second.begin(); itor != it->second.end(); itor++)
         {
