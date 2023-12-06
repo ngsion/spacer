@@ -19,10 +19,10 @@ using namespace std;
 #define TheMaxRow 3084
 #define TheMaxNum 33
 #define TheLength 12 ////取前面几个
-#define TheRelatedCount 12
+#define TheRelatedCount 24
 #define TheTestInCount 24 /// 判断下一期是否在当前数字的Related序列中,此值小于等于 33
 
-static int maxrowcount = 471;
+static int maxrowcount = 500;
 
 static int target[TheCount][TheMaxRow];
 static vector<vector<int>> alltargets;
@@ -111,9 +111,9 @@ int main()
 
         geteRelatedNumbers();
 
-         // calculateYiLou();
+      calculateYiLou();
 
-         calculateRelatedNumbers(testqi);
+      //   calculateRelatedNumbers(testqi);
         //{1,2, 19 , 21, 26, 28};
         //    vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
         //  testThreeWithVector( data, maxQishu);
@@ -122,9 +122,9 @@ int main()
         // calculateHotCold(maxQishu);
         //  testKill(maxQishu);
 
-        // doubleKill(maxQishu);
+      // doubleKill(maxQishu);
 
-        //  calculateWarm(maxQishu);
+      //  calculateWarm(maxQishu);
 
         for (int index = maxQishu - 50; index < maxQishu; index++)
         {
@@ -139,8 +139,8 @@ int main()
         }
         // testNumbers(testqi);
 
-        // calculateAfterByQishu(testqi);
-         calculateAfterByQishuAgain(testqi);
+       //  calculateAfterByQishu(testqi);
+        // calculateAfterByQishuAgain(testqi);
     }
 
     outFile.close();
@@ -371,7 +371,7 @@ void calculateYiLou()
         {
             int number = idx + 1;
             bool found = false;
-            for (int count = 0; count < one.size(); count++)
+            for (int count = 0; count < TheCount; count++)
             {
                 if (one[count] == number)
                 {
@@ -392,11 +392,11 @@ void calculateYiLou()
         {
             sum += *it;
         }
-      //  cout << "yilouzhi " << index << " sum: " << sum << endl;
+        cout << "yilouzhi " << index << " sum: " << sum << endl;
         sort(yilouzhiforonetarget.begin(), yilouzhiforonetarget.end());
-      //  print_vetor2(yilouzhiforonetarget);
+        print_vetor2(yilouzhiforonetarget);
         sort(one.begin(), one.end());
-       // print_vetor2(one);
+        print_vetor2(one);
     }
 
     cout << "yilou " << endl;
@@ -404,7 +404,7 @@ void calculateYiLou()
     for (auto it = yilouCount.begin(); it != yilouCount.end(); it++)
     {
         cout << "first  " << it->first << " :  " << it->second.back() << endl;
-         print_vetor(it->second);
+        // print_vetor(it->second);
 
         for (auto itor = it->second.begin(); itor != it->second.end(); itor++)
         {
@@ -1047,6 +1047,7 @@ void calculateRelatedNumbers(vector<int> testqi)
         anotherPredict[idx + 1] = 0;
     }
 
+ cout <<  "TheRelatedCount :  "<<TheRelatedCount <<endl;
     ////分组打印
     for (int idx = 0; idx < TheCount; idx++)
     {
