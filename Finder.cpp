@@ -108,12 +108,14 @@ int main()
         getAllTargets();
 
         vector<int> testqi = getVectorByQiShu(maxQishu);
-
+        //vector<int> testqi = {30, 4 ,14, 11, 31, 3};
+       // vector<int> testqi = {31,33, 30, 22, 28, 3};
+  
         geteRelatedNumbers();
 
     //  calculateYiLou();
 
-         calculateRelatedNumbers(testqi);
+     //    calculateRelatedNumbers(testqi);
         //{1,2, 19 , 21, 26, 28};
         //    vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
         //  testThreeWithVector( data, maxQishu);
@@ -140,7 +142,7 @@ int main()
         // testNumbers(testqi);
 
        //  calculateAfterByQishu(testqi);
-        // calculateAfterByQishuAgain(testqi);
+         calculateAfterByQishuAgain(testqi);
     }
 
     outFile.close();
@@ -1047,7 +1049,7 @@ void calculateRelatedNumbers(vector<int> testqi)
         anotherPredict[idx + 1] = 0;
     }
 
- cout <<  "TheRelatedCount :  "<<TheRelatedCount <<endl;
+ cout <<  "TheRelatedCount :  "<<TheRelatedCount << "  maxrowcount : "<< maxrowcount <<  endl;
     ////分组打印
     for (int idx = 0; idx < TheCount; idx++)
     {
