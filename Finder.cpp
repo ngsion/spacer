@@ -16,13 +16,13 @@ using namespace std;
 #define TheW 24
 #define TheH 4
 #define TheCount 6
-#define TheMaxRow 3082
+#define TheMaxRow 3084
 #define TheMaxNum 33
 #define TheLength 12 ////取前面几个
 #define TheRelatedCount 33
 #define TheTestInCount 24 /// 判断下一期是否在当前数字的Related序列中,此值小于等于 33
 
-static int maxrowcount = 500;
+static int maxrowcount = 1250;
 
 static int target[TheCount][TheMaxRow];
 static vector<vector<int>> alltargets;
@@ -113,9 +113,9 @@ int main()
   
         geteRelatedNumbers();
 
-    //  calculateYiLou();
+     // calculateYiLou();
 
-         calculateRelatedNumbers(testqi);
+       //  calculateRelatedNumbers(testqi);
         //{1,2, 19 , 21, 26, 28};
         //    vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
         //  testThreeWithVector( data, maxQishu);
