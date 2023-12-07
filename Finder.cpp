@@ -16,7 +16,7 @@ using namespace std;
 #define TheW 24
 #define TheH 4
 #define TheCount 6
-#define TheMaxRow 3084
+#define TheMaxRow 3082
 #define TheMaxNum 33
 #define TheLength 12 ////取前面几个
 #define TheRelatedCount 33
@@ -115,7 +115,7 @@ int main()
 
     //  calculateYiLou();
 
-     //    calculateRelatedNumbers(testqi);
+         calculateRelatedNumbers(testqi);
         //{1,2, 19 , 21, 26, 28};
         //    vector<int> data = {26, 22,  7,  20,2 ,12,  9,   15, 10};
         //  testThreeWithVector( data, maxQishu);
