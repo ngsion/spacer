@@ -1,8 +1,8 @@
 #include "Utility.h"
 #include "writeBMP.h"
 
-#define PW 648
-#define PH 480
+#define PW 128
+#define PH 128
 
 #define SW (PW + 1)
 #define SH (PH + 1)
@@ -40,7 +40,7 @@ int main()
     //  cout << "start with " << endl;
 
     int A[SW][SH];
-    char filename[64] = "result_648X480_start_1_21_1160.txt";
+    char filename[64] = "result_128X128_start_10_11_234.txt";
 
     if (isFileExists_fopen(filename))
     {
@@ -79,19 +79,19 @@ int main()
             //  cout << "a x y " << xpos << "  " << ypos << "  " << A[xpos][ypos] << endl;
             if (A[xpos][ypos] == 2)   ////upright
             {
-                if (datapos1 > 0 && datapos1 < data_size - 2)
+                if (yy-1 >= 0 && datapos1 < data_size - 2   && xx+1 < width*2)
                 {
                     *((unsigned char *)(RGBData + datapos1)) = 0;
                     *((unsigned char *)(RGBData + datapos1 + 1)) = 0;
-                    *((unsigned char *)(RGBData + datapos1 + 2)) = 255;
+                    *((unsigned char *)(RGBData + datapos1 + 2)) = 0;
                 }
             }
             else  if (A[xpos][ypos] == 4)   ////downleft
             {
-                if (datapos4 > 0 && datapos4 < data_size - 2)
+                if (yy + 2 < height * 2  && datapos4 < data_size - 2 && xx-2 >= 0)
                 {
                     *((unsigned char *)(RGBData + datapos4)) = 0;
-                    *((unsigned char *)(RGBData + datapos4 + 1)) = 255;
+                    *((unsigned char *)(RGBData + datapos4 + 1)) = 0;
                     *((unsigned char *)(RGBData + datapos4 + 2)) = 0;
                 }
             }
@@ -99,7 +99,10 @@ int main()
         }
     }
 
-    writeBMP("image.bmp", height * 2, width * 2, RGBData);
+    char bmpFileName[128];
+    memset(bmpFileName,0,128);
+    sprintf(bmpFileName,"image_%s.bmp",filename);
+    writeBMP(bmpFileName, height * 2, width * 2, RGBData);
     // Draw point
     free(RGBData);
 

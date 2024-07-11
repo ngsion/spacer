@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <vector>
-#define PW 12
-#define PH 12
+#define PW 128
+#define PH 128
 
 using namespace std;
 

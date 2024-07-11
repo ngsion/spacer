@@ -22,7 +22,7 @@
 #define Ratio 1.414
 
 /// @brief 可变参数，标记两个柱子的最小距离要求
-int MinDistance = 3;
+int MinDistance = 5;
 
 ////定义边缘最少空行
 int EdgeOffset = 1;
