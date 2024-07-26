@@ -1,11 +1,35 @@
-#include "Utility.h"
+#include <vector>
+#include <algorithm>
+#include <math.h>
+#include <fstream>
+#include <string>
+#include <map>
+#include <iostream>
+#include <stdio.h>
+#include <unistd.h>
 #include "writeBMP.h"
+
+using namespace std;
 
 #define PW 128
 #define PH 128
 
 #define SW (PW + 1)
 #define SH (PH + 1)
+
+static bool isFileExists_fopen(char *name)
+{
+  return access(name, F_OK) == 0;
+  if (FILE *file = fopen(name, "r"))
+  {
+    fclose(file);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
 
 bool LoadMatrixFileToA(const char *fileName, int row, int column, int A[SW][SH])
 {
