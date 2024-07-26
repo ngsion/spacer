@@ -115,11 +115,11 @@ int plotBmpWithPatterns(char *patterns, int width, int height, char *filename) {
 
     int xx = 2 * xpos;
 
-    for (int ypos = height - 1; ypos >= 0; ypos--) {
+    for (int ypos = 0; ypos < height; ypos++) {
 
       char pattern = *((char *)patterns + xpos * height + ypos);
 
-      int yy = 2 * (height - ypos - 1);
+      int yy = 2 * ypos;
 
       int upleft = yy * lengthInLine + xx * 3;
       int upright = yy * lengthInLine + (xx + 1) * 3;
@@ -130,15 +130,18 @@ int plotBmpWithPatterns(char *patterns, int width, int height, char *filename) {
         *((unsigned char *)(RGBData + upleft)) = 0;
         *((unsigned char *)(RGBData + upleft + 1)) = 0;
         *((unsigned char *)(RGBData + upleft + 2)) = 0;
-      } else if (pattern & UPRIGHT) {
+      }
+      if (pattern & UPRIGHT) {
         *((unsigned char *)(RGBData + upright)) = 0;
         *((unsigned char *)(RGBData + upright + 1)) = 0;
         *((unsigned char *)(RGBData + upright + 2)) = 0;
-      } else if (pattern & DOWNRIGHT) {
+      }
+      if (pattern & DOWNRIGHT) {
         *((unsigned char *)(RGBData + downright)) = 0;
         *((unsigned char *)(RGBData + downright + 1)) = 0;
         *((unsigned char *)(RGBData + downright + 2)) = 0;
-      } else if (pattern & DOWNLEFT) {
+      }
+      if (pattern & DOWNLEFT) {
         *((unsigned char *)(RGBData + downleft)) = 0;
         *((unsigned char *)(RGBData + downleft + 1)) = 0;
         *((unsigned char *)(RGBData + downleft + 2)) = 0;
@@ -160,8 +163,8 @@ int plotBmpWithPatterns(char *patterns, int width, int height, char *filename) {
 
 int plotCPatterns() {
 
-  int width = PW;
-  int height = PH;
+  int width = PW / 4;
+  int height = PH / 4;
 
   char patterns[width][height];
   for (int column = 0; column < width; column++) {
@@ -173,13 +176,13 @@ int plotCPatterns() {
   for (int column = 0; column < width; column += 2) {
     for (int row = 0; row < height; row += 2) {
 
-      int columnIndex = column / 64;
-      int rowIndex = row / 64;
+      int columnIndex = column / 2;
+      int rowIndex = row / 2;
 
       int patternIndex = rowIndex * width / 2 + columnIndex;
 
-      //  if (patternIndex >= CPatterns.size())
-      //    break;
+      if (patternIndex >= CPatterns.size())
+        break;
 
       int pattern = CPatterns[patternIndex];
 
@@ -195,8 +198,8 @@ int plotCPatterns() {
 
 int plotMPatterns() {
 
-  int width = PW;
-  int height = PH;
+  int width = PW / 4;
+  int height = PH / 4;
 
   char patterns[width][height];
   for (int column = 0; column < width; column++) {
@@ -208,13 +211,13 @@ int plotMPatterns() {
   for (int column = 0; column < width; column += 2) {
     for (int row = 0; row < height; row += 2) {
 
-      int columnIndex = column / 64;
-      int rowIndex = row / 64;
+      int columnIndex = column / 2;
+      int rowIndex = row / 2;
 
       int patternIndex = rowIndex * width / 2 + columnIndex;
 
-      //  if (patternIndex >= MPatterns.size())
-      //   break;
+      if (patternIndex >= MPatterns.size())
+        break;
 
       int pattern = MPatterns[patternIndex];
 
@@ -230,8 +233,8 @@ int plotMPatterns() {
 
 int plotYPatterns() {
 
-  int width = PW;
-  int height = PH;
+  int width = PW / 4;
+  int height = PH / 4;
 
   char patterns[width][height];
   for (int column = 0; column < width; column++) {
@@ -243,13 +246,13 @@ int plotYPatterns() {
   for (int column = 0; column < width; column += 2) {
     for (int row = 0; row < height; row += 2) {
 
-      int columnIndex = column / 64;
-      int rowIndex = row / 64;
+      int columnIndex = column / 2;
+      int rowIndex = row / 2;
 
       int patternIndex = rowIndex * width / 2 + columnIndex;
 
-      // if (patternIndex >= YPatterns.size())
-      //   break;
+      if (patternIndex >= YPatterns.size())
+        break;
 
       int pattern = YPatterns[patternIndex];
 
@@ -296,7 +299,47 @@ int plotCopyForAllPatterns() {
                              "plotCopyForAllPatterns");
 }
 
-int plotAllPatternsIn32x32() {
+int plotCorners() {
+  int width = PW;
+  int height = PH;
+
+  char patterns[width][height];
+  for (int column = 0; column < width; column++) {
+    for (int row = 0; row < height; row++) {
+      patterns[column][row] = 0;
+    }
+  }
+  patterns[0][0] = 0b1111;
+  patterns[0][1] = 0b1111;
+  patterns[1][0] = 0b1111;
+  patterns[1][1] = 0b1111;
+
+  patterns[0][height - 1] = 0b1111;
+  patterns[0][height - 2] = 0b1111;
+  patterns[1][height - 1] = 0b1111;
+  patterns[1][height - 2] = 0b1111;
+
+  patterns[width - 1][0] = 0b1111;
+  patterns[width - 2][0] = 0b1111;
+  patterns[width - 1][1] = 0b1111;
+  patterns[width - 2][1] = 0b1111;
+
+  patterns[width - 1][height - 1] = 0b1111;
+  patterns[width - 2][height - 1] = 0b1111;
+  patterns[width - 1][height - 2] = 0b1111;
+  patterns[width - 2][height - 2] = 0b1111;
+
+  return plotBmpWithPatterns(*patterns, width, height, "plotCorners");
+}
+
+int plotAllPatternsIn32x32(int index, char *filename) {
+
+  vector<int> targetPatterns = CPatterns;
+  if (index == 1) {
+    targetPatterns = MPatterns;
+  } else if (index == 2) {
+    targetPatterns = YPatterns;
+  }
 
   int width = PW;
   int height = PH;
@@ -317,10 +360,60 @@ int plotAllPatternsIn32x32() {
       int patternColumnIndex = columnIndex / 2;
       int patternRowIndex = rowIndex / 2;
 
-      if (column <= width / 2 && row <= height / 2)
+      if (column <= width / 2 && row <= height / 2) {
+
+        int xDistance = 4;
+        int yDistance = 10;
+        ///// 4-16-4-16-4-16
+        columnIndex = column / 20;
+        /// 10-16-10-16
+        rowIndex = row / 26;
+
+        if (column % 20 >= xDistance && row % 26 >= yDistance) {
+          int patternIndex = rowIndex * 3 + columnIndex;
+
+          if (rowIndex >= 2 || columnIndex >= 3)
+            continue;
+
+          int pattern = targetPatterns[patternIndex];
+
+          patterns[column][row] = patternToElement(pattern, 0);
+          patterns[column + 1][row] = patternToElement(pattern, 1);
+          patterns[column + 1][row + 1] = patternToElement(pattern, 2);
+          patterns[column][row + 1] = patternToElement(pattern, 3);
+        }
+
         continue;
-      if (column >= width / 2 && row >= height / 2)
+      }
+
+      if (column >= width / 2 && row >= height / 2) {
+
+        int newcolumn = column - width / 2;
+        int newrow = row - height / 2;
+
+        int xDistance = 4;
+        int yDistance = 10;
+        ///// 4-16-4-16-4-16
+        columnIndex = newcolumn / 20;
+        /// 10-16-10-16
+        rowIndex = newrow / 26;
+
+        if (newcolumn % 20 >= xDistance && newrow % 26 >= yDistance) {
+          int patternIndex = rowIndex * 3 + columnIndex;
+
+          if (rowIndex >= 2 || columnIndex >= 3)
+            continue;
+
+          int pattern = targetPatterns[patternIndex];
+
+          patterns[column][row] = patternToElement(pattern, 0);
+          patterns[column + 1][row] = patternToElement(pattern, 1);
+          patterns[column + 1][row + 1] = patternToElement(pattern, 2);
+          patterns[column][row + 1] = patternToElement(pattern, 3);
+        }
+
         continue;
+      }
 
       int patternIndex = patternRowIndex * 16 + patternColumnIndex;
 
@@ -333,8 +426,26 @@ int plotAllPatternsIn32x32() {
     }
   }
 
-  return plotBmpWithPatterns(*patterns, width, height,
-                             "plotAllPatternsIn32x32");
+  return plotBmpWithPatterns(*patterns, width, height, filename);
+}
+
+bool isSpecialPattern(int pattern) {
+  if (pattern == (int)0b0010000110000100)
+    return true;
+  if (pattern == (int)0b1000010000100001)
+    return true;
+  if (pattern == (int)0b0001001001001000)
+    return true;
+
+  // char upleft = patternToElement(pattern, 0);
+  // char upright = patternToElement(pattern, 1);
+  // char downright = patternToElement(pattern, 2);
+  // char downleft = patternToElement(pattern, 3);
+
+  // if (upleft == upright && upright == downleft && downleft == downright)
+  //   return true;
+
+  return false;
 }
 
 void calCMYPatterns() {
@@ -348,12 +459,14 @@ void calCMYPatterns() {
         int yp = allPatterns[ypos];
         if ((cp & mp) == 0 && (yp & mp) == 0 && (cp & yp) == 0) {
 
-          if (cp == (int)0b0010000110000100) {
-            //   if (mp == (int)0b1000010000100001) {
-            CPatterns.push_back(cp);
-            MPatterns.push_back(mp);
-            YPatterns.push_back(yp);
-            //   }
+          if (isSpecialPattern(cp)) {
+            if (isSpecialPattern(mp)) {
+              if (isSpecialPattern(yp)) {
+                CPatterns.push_back(cp);
+                MPatterns.push_back(mp);
+                YPatterns.push_back(yp);
+              }
+            }
           }
         }
       }
@@ -361,28 +474,66 @@ void calCMYPatterns() {
   }
 }
 
+int doCMYPatterns() {
+  /////要打印的是银浆
+  int outer = 0b0010000110000100;
+  int center = 0b1000010000100001;
+  int middler = 0b0100100000010010;
+
+  CPatterns.push_back(outer);
+  MPatterns.push_back(center);
+  YPatterns.push_back(middler);
+
+  CPatterns.push_back(middler);
+  MPatterns.push_back(outer);
+  YPatterns.push_back(center);
+
+  CPatterns.push_back(center);
+  MPatterns.push_back(middler);
+  YPatterns.push_back(outer);
+
+  CPatterns.push_back(center);
+  MPatterns.push_back(center);
+  YPatterns.push_back(outer);
+
+  CPatterns.push_back(center);
+  MPatterns.push_back(outer);
+  YPatterns.push_back(center);
+
+  CPatterns.push_back(outer);
+  MPatterns.push_back(center);
+  YPatterns.push_back(center);
+}
+
 int main() {
   int pattern = 0; // 初始模式为0
   generatePatterns(pattern, 0);
 
+  doCMYPatterns();
+
   cout << allPatterns.size() << endl;
 
-  plotAllPatternsIn32x32();
+  plotCorners();
+
+  plotAllPatternsIn32x32(0, "plotAllPatternsIn32x32ForC");
+  plotAllPatternsIn32x32(1, "plotAllPatternsIn32x32ForM");
+  plotAllPatternsIn32x32(2, "plotAllPatternsIn32x32ForY");
 
   plotCopyForAllPatterns();
 
-  calCMYPatterns();
   // print_binary_vector(CPatterns);
 
   //  print_binary(MPatterns.back());
   // print_binary(YPatterns.back());
-  cout << YPatterns.size() << endl;
-  print_binary(YPatterns.back());
-  char upleft = patternToElement(YPatterns.back(), 0);
-  print_binary(upleft);
+  cout << CPatterns.size() << endl;
+
   cout << MPatterns.size() << endl;
   //  print_binary_vector(YPatterns);
   cout << YPatterns.size() << endl;
+
+  print_binary(CPatterns.front());
+  print_binary(MPatterns.front());
+  print_binary(YPatterns.front());
 
   plotCPatterns();
   plotMPatterns();
