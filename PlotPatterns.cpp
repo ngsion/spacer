@@ -161,6 +161,24 @@ int plotBmpWithPatterns(char *patterns, int width, int height, char *filename) {
   return 0;
 }
 
+int plotOnePixel()
+{
+  int width = PW;
+  int height = PH;
+
+  char patterns[width][height];
+  for (int column = 0; column < width; column++) {
+    for (int row = 0; row < height; row++) {
+      patterns[column][row] = 0;
+    }
+  }
+
+  patterns[0][height-1] = 0b1111;
+
+  return plotBmpWithPatterns(*patterns, width, height,
+                             "plotOnePixel");
+}
+
 int plotCPatterns() {
 
   int width = PW / 4;
@@ -521,6 +539,7 @@ int main() {
 
   plotCopyForAllPatterns();
 
+plotOnePixel();
   // print_binary_vector(CPatterns);
 
   //  print_binary(MPatterns.back());
