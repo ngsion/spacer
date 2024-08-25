@@ -28,6 +28,7 @@ using namespace std;
 #define PositionCountInOnePixel 4
 #define ElementCountInOnePattern 4
 
+///定义银浆位置
 #define UPLEFT 0b1000
 #define UPRIGHT 0b0100
 #define DOWNRIGHT 0b0010
@@ -180,7 +181,7 @@ int plotOnePixel()
 }
 
 int plotCPatterns() {
-
+ 
   int width = PW / 4;
   int height = PH / 4;
 
@@ -381,16 +382,16 @@ int plotAllPatternsIn32x32(int index, char *filename) {
       if (column <= width / 2 && row <= height / 2) {
 
         int xDistance = 4;
-        int yDistance = 10;
+        int yDistance = 4;
         ///// 4-16-4-16-4-16
         columnIndex = column / 20;
-        /// 10-16-10-16
-        rowIndex = row / 26;
+        ///  4-16-4-16-4-16
+        rowIndex = row / 20;
 
-        if (column % 20 >= xDistance && row % 26 >= yDistance) {
-          int patternIndex = rowIndex * 3 + columnIndex;
+        if (column % 20 >= xDistance && row % 20 >= yDistance) {
+          int patternIndex = 0 * 3 + columnIndex;
 
-          if (rowIndex >= 2 || columnIndex >= 3)
+          if (rowIndex >= 3 || columnIndex >= 3)
             continue;
 
           int pattern = targetPatterns[patternIndex];
@@ -410,16 +411,16 @@ int plotAllPatternsIn32x32(int index, char *filename) {
         int newrow = row - height / 2;
 
         int xDistance = 4;
-        int yDistance = 10;
+        int yDistance = 4;
         ///// 4-16-4-16-4-16
         columnIndex = newcolumn / 20;
-        /// 10-16-10-16
-        rowIndex = newrow / 26;
+        /// 4-16-4-16-4-16
+        rowIndex = newrow / 20;
 
-        if (newcolumn % 20 >= xDistance && newrow % 26 >= yDistance) {
-          int patternIndex = rowIndex * 3 + columnIndex;
+        if (newcolumn % 20 >= xDistance && newrow % 20 >= yDistance) {
+          int patternIndex = 1 * 3 + columnIndex;
 
-          if (rowIndex >= 2 || columnIndex >= 3)
+          if (rowIndex >= 3 || columnIndex >= 3)
             continue;
 
           int pattern = targetPatterns[patternIndex];
@@ -498,26 +499,32 @@ int doCMYPatterns() {
   int center = 0b1000010000100001;
   int middler = 0b0100100000010010;
 
+///1
   CPatterns.push_back(outer);
   MPatterns.push_back(center);
   YPatterns.push_back(middler);
 
+///2
   CPatterns.push_back(middler);
   MPatterns.push_back(outer);
   YPatterns.push_back(center);
 
+///3
   CPatterns.push_back(center);
   MPatterns.push_back(middler);
   YPatterns.push_back(outer);
 
+///4
   CPatterns.push_back(center);
   MPatterns.push_back(center);
   YPatterns.push_back(outer);
 
+///5
   CPatterns.push_back(center);
   MPatterns.push_back(outer);
   YPatterns.push_back(center);
 
+///6
   CPatterns.push_back(outer);
   MPatterns.push_back(center);
   YPatterns.push_back(center);
